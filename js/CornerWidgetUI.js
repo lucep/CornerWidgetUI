@@ -26,7 +26,6 @@
 CornerWidgetUI = {};
 
 CornerWidgetUI.constants = {
-	WIDGET_CSS: "https://8d69a4badb4c0e3cd487-efd95a2de0a33cb5b6fcd4ec94d1740c.ssl.cf2.rackcdn.com/css/CornerWidgetUI.stable.latest.min.css",
 	SESSION_WINDOW: 15 * 60 * 1000, //15 mins
 
 	//IDs for the DOM containers
@@ -57,6 +56,15 @@ CornerWidgetUI.menu_tree = function ( nodes, langcode ) {
 	return menu_ml;
 };
 
+//dynamic object creation method to allow for older browsers that do not comply with the ES6 dynamic object notation
+CornerWidgetUI._dyn_obj = function(params){
+	var dyn_obj = {};
+	for (var i=0; i < params.length; i++){
+		dyn_obj[params[i].key] = params[i].value;
+	}
+	return dyn_obj;
+};
+
 CornerWidgetUI.init = function (opts){
 	//depends on $lucep being loaded
 	$lucep["get_kiosk_details"](
@@ -77,7 +85,9 @@ CornerWidgetUI.init = function (opts){
 				//configurable element to prevent loss of leads due to incorrect validation
 				CornerWidgetUI._ui_config.validation = {limit: opts["validation_limit"] ? opts["validation_limit"] : 1,
 														count: 0};
-
+				//Configurable element to determine positioning - default to bottom right alignment
+				CornerWidgetUI._ui_config.position = opts["position"] ? opts["position"] : {"align": "right", "vertical-align":"bottom"};
+				CornerWidgetUI._ui_config.css = opts["css"] ? opts["css"] : "https://8d69a4badb4c0e3cd487-efd95a2de0a33cb5b6fcd4ec94d1740c.ssl.cf2.rackcdn.com/css/CornerWidgetUI.stable.latest.min.css";
 				//Prepare the Utils Config for fancy telephone input
 				CornerWidgetUI._ui_config.tel_input_prefs = 
 					{ "defaultCountry": "auto",
@@ -134,7 +144,7 @@ CornerWidgetUI.init = function (opts){
 				css_file.rel = "stylesheet";
 				css_file.media = "screen";
 				css_file.type = "text/css";
-				css_file.href = CornerWidgetUI.constants.WIDGET_CSS;
+				css_file.href = CornerWidgetUI._ui_config.css,
 				css_file.onload = function(){
 					CornerWidgetUI._load_libraries(opts);
 					CornerWidgetUI._draw_ui(opts);
@@ -368,7 +378,7 @@ CornerWidgetUI.control = function (params){
 
 		//Start by removing any custom styles
 		CornerWidgetUI._manage_styles({ elem: CornerWidgetUI.elem_widget_btn,
-										reset: ["bottom", "right"],
+										reset: [CornerWidgetUI._ui_config.position["vertical-align"], CornerWidgetUI._ui_config.position["align"]],
 										className: "a-gorilla-aboutToWait" })
 		CornerWidgetUI._manage_styles({ elem: CornerWidgetUI.elem_widget_box,
 										reset: "height"});
@@ -406,11 +416,11 @@ CornerWidgetUI.control = function (params){
 		if ( CornerWidgetUI.elem_widget_btn.className == "a-gorilla-clicked" ) {
 			//remove any custom styles applied by previous clicks
 			CornerWidgetUI._manage_styles({ elem: CornerWidgetUI.elem_widget_btn,
-											reset: ["bottom", "right"] });
+											reset: [CornerWidgetUI._ui_config.position["vertical-align"], CornerWidgetUI._ui_config.position["align"]] });
 			CornerWidgetUI._manage_styles({ elem: CornerWidgetUI.elem_widget_box,
 											reset: ["height"]});
 			CornerWidgetUI._manage_styles({ elem: CornerWidgetUI.elem_widget_bar,
-											reset: ["right", "bottom"]});
+											reset: [CornerWidgetUI._ui_config.position["vertical-align"], CornerWidgetUI._ui_config.position["align"]]});
 			CornerWidgetUI._declare_bar_length();
 			
 			//ensure state is restored properly
@@ -458,8 +468,8 @@ CornerWidgetUI.control = function (params){
 
 			//capture properties related to the size of the form and apply them to the box and button
 			CornerWidgetUI._manage_styles({"elem": CornerWidgetUI.elem_widget_btn,
-										   "style": {"bottom": (CornerWidgetUI.elem_formdata.clientHeight + 13 + 20)+"px",
-													 "right": (CornerWidgetUI.elem_formdata.clientWidth+20)+"px"},
+										   "style": CornerWidgetUI._dyn_obj([{key: CornerWidgetUI._ui_config.position["vertical-align"], value: (CornerWidgetUI.elem_formdata.clientHeight + 13 + 20)+"px"},
+																			{key: CornerWidgetUI._ui_config.position["align"], value: (CornerWidgetUI.elem_formdata.clientWidth+20)+"px"}]),
 										   "className": "a-gorilla-clicked" });
 
 			CornerWidgetUI._manage_styles({"elem": CornerWidgetUI.elem_widget_box,
@@ -468,8 +478,8 @@ CornerWidgetUI.control = function (params){
 										   "className": "a-gorilla-open"});
 
 			CornerWidgetUI._manage_styles({"elem": CornerWidgetUI.elem_widget_bar,
-										   "style": {"bottom": (CornerWidgetUI.elem_formdata.clientHeight + 13 + 20 + 10)+"px",
-													 "right": (CornerWidgetUI.elem_formdata.clientWidth+20+20)+"px"},
+										   "style": CornerWidgetUI._dyn_obj([{key: CornerWidgetUI._ui_config.position["vertical-align"], value: (CornerWidgetUI.elem_formdata.clientHeight + 13 + 20 + 10)+"px"},
+													 {key: CornerWidgetUI._ui_config.position["align"], value: (CornerWidgetUI.elem_formdata.clientWidth+20+20)+"px"}]),
 										   "className": "a-gorilla-open"});
 
 			setTimeout( function() {
@@ -543,14 +553,14 @@ CornerWidgetUI.control = function (params){
 			CornerWidgetUI._curr_state = params.state;
 			//set the button
 			CornerWidgetUI._manage_styles({elem: CornerWidgetUI.elem_widget_btn,
-										   reset: ["bottom", "right"]});
+										   reset: [CornerWidgetUI._ui_config.position["vertical-align"], CornerWidgetUI._ui_config.position["align"]]});
 			//shrink the box
 			CornerWidgetUI._manage_styles({elem: CornerWidgetUI.elem_widget_box,
 										   reset: ["height", "overflow", "width"]});
 
 			//restore the text bar
 			CornerWidgetUI._manage_styles({elem: CornerWidgetUI.elem_widget_bar,
-										   reset: ["bottom", "right"]});
+										   reset: [CornerWidgetUI._ui_config.position["vertical-align"], CornerWidgetUI._ui_config.position["align"]]});
 			CornerWidgetUI._declare_bar_length();
 		}
 		//enable all form elements

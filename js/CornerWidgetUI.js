@@ -85,6 +85,7 @@ CornerWidgetUI.init = function (opts){
 				//configurable element to prevent loss of leads due to incorrect validation
 				CornerWidgetUI._ui_config.validation = {limit: opts["validation_limit"] ? opts["validation_limit"] : 1,
 														count: 0};
+				CornerWidgetUI._ui_config.auto_open = opts["auto_open"] ? opts["auto_open"] : 1500; //default to 1.5 seconds after loading to open the widget
 				//Configurable element to determine positioning - default to bottom right alignment
 				CornerWidgetUI._ui_config.position = opts["position"] ? opts["position"] : {"align": "right", "vertical-align":"bottom"};
 				CornerWidgetUI._ui_config.css = opts["css"] ? opts["css"] : "https://8d69a4badb4c0e3cd487-efd95a2de0a33cb5b6fcd4ec94d1740c.ssl.cf2.rackcdn.com/css/CornerWidgetUI.stable.latest.min.css";
@@ -410,10 +411,11 @@ CornerWidgetUI.control = function (params){
 
 		break;
 
+	case 'auto_open':
 	case 'tapped_icon':
 	case 'clicked_icon':
 		//toggle visibility
-		if ( CornerWidgetUI.elem_widget_btn.className == "a-gorilla-clicked" ) {
+		if ( CornerWidgetUI.elem_widget_btn.className == "a-gorilla-clicked" && params.state != 'auto_open' ) {
 			//remove any custom styles applied by previous clicks
 			CornerWidgetUI._manage_styles({ elem: CornerWidgetUI.elem_widget_btn,
 											reset: [CornerWidgetUI._ui_config.position["vertical-align"], CornerWidgetUI._ui_config.position["align"]] });
@@ -462,9 +464,9 @@ CornerWidgetUI.control = function (params){
 			//track event
 			//TODO: Fix dependency on fancy telephone
 			$lucep["send_intelligence"]( { event_type: "close-prompt",
-										   customer_ref: window["jQuery"]( ".selected-flag" )["attr"]( "title" ) } ); //depends on fancy telephone being loaded
-
-		} else { 
+										   payload: {"location": window["jQuery"]( ".selected-flag" )["attr"]( "title" ) } } ); //depends on fancy telephone being loaded
+			$lucep.put_data({"key": "lucep-state", "value": "closed"});
+		} else if ( CornerWidgetUI.elem_widget_btn.className != "a-gorilla-clicked" ){ 
 
 			//capture properties related to the size of the form and apply them to the box and button
 			CornerWidgetUI._manage_styles({"elem": CornerWidgetUI.elem_widget_btn,
@@ -488,12 +490,13 @@ CornerWidgetUI.control = function (params){
 			}, 1000 );
 
 			//track event
-			$lucep["send_intelligence"]( { event_type: "open-prompt",
-											 customer_ref: window["jQuery"]( ".selected-flag" )["attr"]( "title" ) } ); //depends on fancy telephone being loaded
+			$lucep["send_intelligence"]( { event_type: params.state,
+										   payload: {"location": window["jQuery"]( ".selected-flag" )["attr"]( "title" ) } } ); //depends on fancy telephone being loaded
 
 			//update state
 			CornerWidgetUI._prev_state = CornerWidgetUI._curr_state;
 			CornerWidgetUI._curr_state = "open";
+			$lucep.put_data({"key": "lucep-state", "value": "open"});
 		}
 		break;
 
@@ -549,6 +552,14 @@ CornerWidgetUI.control = function (params){
 			//document the state
 			CornerWidgetUI._prev_state = params.state;
 			CornerWidgetUI._curr_state = params.state;
+
+			//check if auto open is active for fresh page loads, and check previous state
+			if (CornerWidgetUI._ui_config.auto_open > 0 && (!$lucep["get_data"]({"key": "lucep-state"}) || $lucep["get_data"]({"key": "lucep-state"}) == "open")){
+				setTimeout(function(){
+					CornerWidgetUI.control({state: "auto_open"});
+				}, CornerWidgetUI._ui_config.auto_open);
+			}
+
 		} else {
 			CornerWidgetUI._curr_state = params.state;
 			//set the button

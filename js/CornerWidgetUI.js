@@ -85,10 +85,10 @@ CornerWidgetUI.init = function (opts){
 				//configurable element to prevent loss of leads due to incorrect validation
 				CornerWidgetUI._ui_config.validation = {limit: opts["validation_limit"] ? opts["validation_limit"] : 1,
 														count: 0};
-				CornerWidgetUI._ui_config.auto_open = opts["auto_open"] ? opts["auto_open"] : 1500; //default to 1.5 seconds after loading to open the widget
+				CornerWidgetUI._ui_config.auto_open = opts["auto_open"] ? opts["auto_open"] : 13000; //default to 13 seconds after loading to open the widget
 				//Configurable element to determine positioning - default to bottom right alignment
 				CornerWidgetUI._ui_config.position = opts["position"] ? opts["position"] : {"align": "right", "vertical-align":"bottom"};
-				CornerWidgetUI._ui_config.css = opts["css"] ? opts["css"] : "https://8d69a4badb4c0e3cd487-efd95a2de0a33cb5b6fcd4ec94d1740c.ssl.cf2.rackcdn.com/css/CornerWidgetUI.stable.latest.min.css";
+				CornerWidgetUI._ui_config.css = opts["css"] ? opts["css"] : "css/CornerWidgetUI.css"; //"https://8d69a4badb4c0e3cd487-efd95a2de0a33cb5b6fcd4ec94d1740c.ssl.cf2.rackcdn.com/css/CornerWidgetUI.stable.latest.min.css";
 				//Prepare the Utils Config for fancy telephone input
 				CornerWidgetUI._ui_config.tel_input_prefs = 
 					{ "defaultCountry": "auto",
@@ -556,6 +556,10 @@ CornerWidgetUI.control = function (params){
 			//check if auto open is active for fresh page loads, and check previous state
 			if (CornerWidgetUI._ui_config.auto_open > 0 && (!$lucep["get_data"]({"key": "lucep-state"}) || $lucep["get_data"]({"key": "lucep-state"}) == "open")){
 				setTimeout(function(){
+					if (! window.intlTelInputUtils){
+						//If the utils have not loaded, try to load them (insurance!)
+						jQuery("#"+CornerWidgetUI.constants._uivar_leadtelID).intlTelInput("loadUtils", CornerWidgetUI._ui_config.tel_input_prefs["utilsScript"] );
+					}
 					CornerWidgetUI.control({state: "auto_open"});
 				}, CornerWidgetUI._ui_config.auto_open);
 			}

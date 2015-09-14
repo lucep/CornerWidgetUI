@@ -88,7 +88,7 @@ CornerWidgetUI.init = function (opts){
 				CornerWidgetUI._ui_config.auto_open = opts["auto_open"] ? opts["auto_open"] : 13000; //default to 13 seconds after loading to open the widget
 				//Configurable element to determine positioning - default to bottom right alignment
 				CornerWidgetUI._ui_config.position = opts["position"] ? opts["position"] : {"align": "right", "vertical-align":"bottom"};
-				CornerWidgetUI._ui_config.css = opts["css"] ? opts["css"] : "css/CornerWidgetUI.css"; //"https://8d69a4badb4c0e3cd487-efd95a2de0a33cb5b6fcd4ec94d1740c.ssl.cf2.rackcdn.com/css/CornerWidgetUI.stable.latest.min.css";
+				CornerWidgetUI._ui_config.css = opts["css"] ? opts["css"] : "https://8d69a4badb4c0e3cd487-efd95a2de0a33cb5b6fcd4ec94d1740c.ssl.cf2.rackcdn.com/css/CornerWidgetUI.stable.latest.min.css";
 				//Prepare the Utils Config for fancy telephone input
 				CornerWidgetUI._ui_config.tel_input_prefs = 
 					{ "defaultCountry": "auto",
@@ -230,7 +230,7 @@ CornerWidgetUI._load_libraries = function(opts){
 					"script",
 					0 );
 	} else {
-		load_fancy_telephone(params);
+		load_fancy_telephone(opts);
 	}
 								   
 };

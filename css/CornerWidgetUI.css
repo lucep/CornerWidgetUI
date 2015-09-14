@@ -1,6 +1,6 @@
 @import url(https://fonts.googleapis.com/css?family=Cabin:400,700);
 
-#gorillaPulse, #gorillaPulse.emit, #gorillaWidget, #gorillaBox, #gorillaForm, #gorillaForm input, #gorillaForm select, #gorillaForm button, #gorillaLabel, #gorillaBar, #gorillaBarTxt {
+#gorillaPulse, #gorillaPulse.emit, #gorillaWidget, #gorillaBox, #gorillaForm, #gorillaForm input,  #gorillaForm button, #gorillaLabel, #gorillaBar, #gorillaBarTxt, #gorillaForm select#gorillaFormService {
 	background-attachment: scroll;
     background-color: transparent;
     background-image: none;
@@ -53,6 +53,59 @@
     -webkit-border-radius: 0;
     opacity: 1;
 
+    text-rendering: auto;
+    text-indent: 0px;
+    text-shadow: none;
+	box-sizing: border-box;
+}
+
+#gorillaForm .intl-tel-input select{
+	background-attachment: scroll;
+    background-color: transparent;
+    background-image: none;
+    background-position: 0 0;
+    background-repeat: no-repeat;
+    border-color: black;
+    border-style: none;
+    border-width: medium;
+    clear: none;
+    clip: auto;
+    color: #000;
+    counter-increment: none;
+    counter-reset: none;
+    cursor: auto;
+    direction: ltr;
+    display: block; /*inline;*/
+    float: none;
+    font-family: 'Cabin', serif;
+    font-size: inherit;
+    font-style: inherit;
+    font-variant: normal;
+    font-weight: inherit;
+    letter-spacing: normal;
+    line-height: inherit;
+    list-style-type: inherit;
+    list-style-position: inside;
+    list-style-image: none;
+    margin: 0;
+    max-height: none;
+    max-width: none;
+    outline: invert none medium;
+    overflow: visible;
+    padding: 0;
+    quotes: "" "";
+    table-layout: auto;
+    text-align: inherit;
+    text-decoration: inherit;
+    text-transform: none;
+    unicode-bidi: normal;
+    vertical-align: baseline;
+    visibility: visible;
+    white-space: normal;
+    word-spacing: normal;
+    border-radius: 0;
+    -moz-border-radius: 0;
+    -webkit-border-radius: 0;
     text-rendering: auto;
     text-indent: 0px;
     text-shadow: none;

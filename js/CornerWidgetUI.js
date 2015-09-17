@@ -650,18 +650,22 @@ CornerWidgetUI._raise_lead = function (btn_ref){
 			 switch(progress["ticket-status"]){
 			 case "new":
 				 CornerWidgetUI.control({"state": "raised_lead"});
+				 return true; // more updates wanted
 				 break;
 				 
 			 case "processing":
 				 CornerWidgetUI.control({"state": "in_call"});
+				 return true; //more updates wanted
 				 break;
 				 
 			 case "finished":
 				 CornerWidgetUI.control({"state": "new"});
+				 return false; //no more updates wanted on this ticket
 				 break;
 				 
 			 case "no-ticket":
 				 CornerWidgetUI.control({"state": "new"});
+				 return false; //no more updates wanted on this ticket
 				 break;
 				 
 			 }

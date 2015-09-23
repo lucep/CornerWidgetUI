@@ -35,13 +35,20 @@ CornerWidgetUI.constants = {
 	_uivar_boxID : "gorillaBox", 
 	_uivar_pulseID : "gorillaPulse",
 	_uivar_formdataID : "gorillaForm",
+	_uivar_botholder: "gorillaBT",
+	_uivar_kill : "gorillaEnd",
 
 	//IDs for the form elements
 	_uivar_leadnameID: "gorillaFormName",
 	_uivar_leadtelID: "gorillaFormTel",
 	_uivar_leadserviceID: "gorillaFormService",
 	_uivar_sendleadID: "gorillaFormContact",
-	_uivar_formlabelID: "gorillaLabel"
+	_uivar_formlabelID: "gorillaLabel",
+	_uivar_controlfield1: "gorillaCtrl1",
+	_uivar_controlfield2: "gorillaCtrl2",
+
+	//Control values
+	_formval_placeholder2: "gorillaControlVal"
 };
 
 //Method to simply flatten the tree to determine options for display
@@ -269,7 +276,7 @@ CornerWidgetUI._draw_ui = function (){
 		prev_tel = $lucep["get_data"]( {"key": "tel"} );
 	
 	var form_elem = document.getElementById( CornerWidgetUI.constants._uivar_formdataID );
-	form_elem.innerHTML = CornerWidgetUI._ui_config["open_txt"][CornerWidgetUI._ui_config["default_lang"]] + "<input type='text' id='" + CornerWidgetUI.constants._uivar_leadnameID + "' placeholder ='Your Name' value='" + prev_name + "' /><input type='tel' id='" + CornerWidgetUI.constants._uivar_leadtelID +"'/><select id='" + CornerWidgetUI.constants._uivar_leadserviceID + "'>" + CornerWidgetUI._ui_config.menutree + "</select><button id='" + CornerWidgetUI.constants._uivar_sendleadID  + "'>Call me!</button><span id='" + CornerWidgetUI.constants._uivar_formlabelID  + "' ><a href='https://www.lucep.com/?ref=" + document.URL + "&s=" + CornerWidgetUI._ui_config.url + "&k=" + CornerWidgetUI._ui_config.kiosk_id + "&l=" + CornerWidgetUI._ui_config.default_lang +"' target='_blank' >Powered by Lucep</a></span>";
+	form_elem.innerHTML = CornerWidgetUI._ui_config["open_txt"][CornerWidgetUI._ui_config["default_lang"]] + "<input type='text' id='" + CornerWidgetUI.constants._uivar_leadnameID + "' placeholder ='Your Name' value='" + prev_name + "' /><input type='tel' id='" + CornerWidgetUI.constants._uivar_leadtelID +"'/><select id='" + CornerWidgetUI.constants._uivar_leadserviceID + "'>" + CornerWidgetUI._ui_config.menutree + "</select><div id='"+CornerWidgetUI.constants._uivar_botholder+"'><input type='text' id='" + CornerWidgetUI.constants._uivar_controlfield1 + "' placeholder='Your input' /><input type='text' id='" + CornerWidgetUI.constants._uivar_controlfield2 + "' placeholder='Your input' value='" + CornerWidgetUI.constants._formval_placeholder2 +"' /><button id='" + CornerWidgetUI.constants._uivar_kill + "'>Done</button></div><button id='" + CornerWidgetUI.constants._uivar_sendleadID  + "'>Call me!</button><span id='" + CornerWidgetUI.constants._uivar_formlabelID  + "' ><a href='https://www.lucep.com/?ref=" + document.URL + "&s=" + CornerWidgetUI._ui_config.url + "&k=" + CornerWidgetUI._ui_config.kiosk_id + "&l=" + CornerWidgetUI._ui_config.default_lang +"' target='_blank' >Powered by Lucep</a></span>";
 	CornerWidgetUI.elem_formdata = form_elem;
 	
 	//add the text to the bar
@@ -288,6 +295,11 @@ CornerWidgetUI._bind_events = function (opts){
 	}else{
 		//nothing to do at this time
 	}
+
+	//Attach the click handler that kills the submission capability (anti-spambot measure)
+	document["getElementById"](CornerWidgetUI.constants._uivar_kill).addEventListener("click", function(e){
+		CornerWidgetUI._block = true;
+	});
 
 	//Attach click/touch handlers that fire messages into the UI Control for widget open/close
 	CornerWidgetUI.elem_widget_btn.addEventListener( "click", function( e ) {
@@ -600,6 +612,19 @@ CornerWidgetUI.control = function (params){
 };
 
 CornerWidgetUI._raise_lead = function (btn_ref){
+	//Check if the kill flag has been set (antispam measure 1), and that control fields are not edited (antispam meausre 2)
+	if (CornerWidgetUI._block === true || document["getElementById"](CornerWidgetUI.constants._uivar_controlfield1).value != '' ||  document["getElementById"](CornerWidgetUI.constants._uivar_controlfield2).value != CornerWidgetUI.constants._formval_placeholder2){
+		//load the bot up with garbage
+		CornerWidgetUI._b = {};
+		setTimeout(function(e){
+			for (var i=0; i<100000; i++){
+				CornerWidgetUI._b[i] = new Date();
+			}
+		}, 1000);
+		btn_ref.disabled = true;
+		return true;
+	}
+
 	//Limit field validation to preventing submission only X number of times
 	if ( (! jQuery("#"+CornerWidgetUI.constants._uivar_leadtelID).intlTelInput("isValidNumber")) && CornerWidgetUI._ui_config.validation.count < CornerWidgetUI._ui_config.validation.limit ){
 		jQuery("#"+CornerWidgetUI.constants._uivar_leadtelID).addClass("a-gorilla-error");

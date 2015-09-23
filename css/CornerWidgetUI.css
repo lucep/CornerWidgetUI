@@ -112,6 +112,13 @@
 	box-sizing: border-box;
 }
 
+#gorillaBT{
+	display: inline-block;
+	overflow: hidden;
+	width: 1px;
+	height: 1px;
+}
+
 #gorillaPulse{
 	width: 0px;
 	height: 0px;

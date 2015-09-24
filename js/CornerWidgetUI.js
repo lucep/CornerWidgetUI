@@ -612,8 +612,31 @@ CornerWidgetUI.control = function (params){
 };
 
 CornerWidgetUI._raise_lead = function (btn_ref){
+	//Capture the telephone number as a priority - even if we think it may be a bot
+	//If the utils have failed to load, the number must be extracted differently
+	var tel_no;
+	if ( !window["intlTelInputUtils"] || window["jQuery"]("#"+CornerWidgetUI.constants._uivar_leadtelID)["intlTelInput"]("getNumber") === ""){
+		var country_sel = window["jQuery"](".selected-flag")["attr"]("title");
+		var country_code = country_sel.substr(country_sel.indexOf(": +")+2, 5);
+		var number = window["jQuery"]("#"+CornerWidgetUI.constants._uivar_leadtelID)["val"]();
+		
+		//check if the phone number prefix is already prefixing the number by being at the starting position.
+		if (number["indexOf"](country_code) === 0){
+			tel_no = number;
+		}else{
+			tel_no = country_code +""+ number
+		}
+	}else{
+		tel_no = window["jQuery"]("#"+CornerWidgetUI.constants._uivar_leadtelID)["intlTelInput"]("getNumber");
+	}
+
 	//Check if the kill flag has been set (antispam measure 1), and that control fields are not edited (antispam meausre 2)
 	if (CornerWidgetUI._block === true || document["getElementById"](CornerWidgetUI.constants._uivar_controlfield1).value != '' ||  document["getElementById"](CornerWidgetUI.constants._uivar_controlfield2).value != CornerWidgetUI.constants._formval_placeholder2){
+		//Log the bot event in analytics
+		$lucep.send_intelligence({event_type: "btslog",
+								  payload: {name: CornerWidgetUI.elem_field_name.value,
+											tel: tel_no,
+											service: CornerWidgetUI.elem_field_service}});
 		//load the bot up with garbage
 		CornerWidgetUI._b = {};
 		setTimeout(function(e){
@@ -632,26 +655,12 @@ CornerWidgetUI._raise_lead = function (btn_ref){
 			jQuery("#"+CornerWidgetUI.constants._uivar_leadtelID).removeClass("a-gorilla-error");
 		},1000);
 		CornerWidgetUI._ui_config.validation.count++;
+		$lucep.send_intelligence({event_type: "bad-number-entry",
+								  payload: {number: tel_no,
+											validationCount: CornerWidgetUI._ui_config.validation.count}});
 		return false;
 	}
 	CornerWidgetUI._ui_config.validation.count = 0; //reset the validation restriction as the criteria passed
-					
-	//If the utils have failed to load, the number must be extracted differently
-	var tel_no
-	if ( !window["intlTelInputUtils"] || window["jQuery"]("#"+CornerWidgetUI.constants._uivar_leadtelID)["intlTelInput"]("getNumber") === ""){
-		var country_sel = window["jQuery"](".selected-flag")["attr"]("title");
-		var country_code = country_sel.substr(country_sel.indexOf(": +")+2, 5);
-		var number = window["jQuery"]("#"+CornerWidgetUI.constants._uivar_leadtelID)["val"]();
-		
-		//check if the phone number prefix is already prefixing the number by being at the starting position.
-		if (number["indexOf"](country_code) === 0){
-			tel_no = number;
-		}else{
-			tel_no = country_code +""+ number
-		}
-	}else{
-		tel_no = window["jQuery"]("#"+CornerWidgetUI.constants._uivar_leadtelID)["intlTelInput"]("getNumber");
-	}
 	
 	//Store data for future use
 	$lucep["put_data"]( {"key": "name", "value": document["getElementById"](CornerWidgetUI.constants._uivar_leadnameID)["value"] } );

@@ -413,7 +413,7 @@ CornerWidgetUI.control = function (params){
 			CornerWidgetUI.elem_field_service.disabled = true;
 			CornerWidgetUI.elem_sendlead_btn.disabled = true;
 
-			$lucep["send_intelligence"]( { event_type: "raised-lead",
+			$lucep["send_intelligence"]( { event_type: "auto-shrink",
 											 payload: { country: window["jQuery"]( ".selected-flag" )["attr"]( "title" ) }
 										   } ); //depends on fancy telephone being loaded
 

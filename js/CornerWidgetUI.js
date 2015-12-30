@@ -77,25 +77,35 @@ CornerWidgetUI.init = function (opts){
 	$lucep["get_kiosk_details"](
 		{
 			callback: function (resp){
+				//reference the config node:
+				if (resp["menu"] && resp["menu"]["config"])
+					w_conf = resp["menu"]["config"];
+				else
+					w_conf = {};
+
 				//Store the server config for this kiosk in memory
 				CornerWidgetUI._ui_config = resp;
 				
 				//TODO: Get parameters configured server side for kiosk details
-				CornerWidgetUI._ui_config.default_lang = resp["default_lang"] ? resp["default_lang"] : "eng";
-				CornerWidgetUI._ui_config.closed_txt = resp["closed_txt"] ? resp["closed_txt"] : { "eng" : "Click here to get a callback" };
-				CornerWidgetUI._ui_config.open_txt = resp["open_txt"] ? resp["open_txt"] : {"eng" : "Please tell us how to contact you, and we'll give you a call back now" };
-				CornerWidgetUI._ui_config.extra_fields = resp["extra_fields"] ? resp["extra_fields"] : {};
-				CornerWidgetUI._ui_config.colour = resp["color"] ? resp["color"] : {"background": "#4067CB"}; //Lucep blue
-				CornerWidgetUI._ui_config.url = opts["url"] ? resp["url"] : "default";
-				CornerWidgetUI._ui_config.kiosk_id = opts["id"] ? opts["id"] : "1";
-				CornerWidgetUI._ui_config.button_cta = opts["button_cta"] ? opts["button_cta"] : {"eng": "Call me!"};
+				CornerWidgetUI._ui_config.default_lang = w_conf["default_lang"] ? w_conf["default_lang"] : "eng";
+				CornerWidgetUI._ui_config.closed_txt = w_conf["closed_txt"] ? w_conf["closed_txt"] : { "eng" : "Click here to get a callback" };
+				CornerWidgetUI._ui_config.open_txt = w_conf["open_txt"] ? w_conf["open_txt"] : {"eng" : "Please tell us how to contact you, and we'll give you a call back now" };
+				CornerWidgetUI._ui_config.extra_fields = w_conf["extra_fields"] ? w_conf["extra_fields"] : {};
+				CornerWidgetUI._ui_config.colour = w_conf["color"] ? w_conf["color"] : {"background": "#4067CB"}; //Lucep blue
+				CornerWidgetUI._ui_config.url = opts["url"] ? opts["url"] : "default";
+				CornerWidgetUI._ui_config.kiosk_id = w_conf["id"] ? w_conf["id"] : "1";
+				CornerWidgetUI._ui_config.button_cta = w_conf["button_cta"] ? w_conf["button_cta"] : {"eng": "Call me!"};
 				//configurable element to prevent loss of leads due to incorrect validation
-				CornerWidgetUI._ui_config.validation = {limit: opts["validation_limit"] ? opts["validation_limit"] : 1,
+				CornerWidgetUI._ui_config.validation = {limit: w_conf["validation_limit"] ? w_conf["validation_limit"] : 1,
 														count: 0};
-				CornerWidgetUI._ui_config.auto_open = opts["auto_open"] ? opts["auto_open"] : 13000; //default to 13 seconds after loading to open the widget
+				CornerWidgetUI._ui_config.auto_open = w_conf["auto_open"] ? w_conf["auto_open"] : 13000; //default to 13 seconds after loading to open the widget
 				//Configurable element to determine positioning - default to bottom right alignment
-				CornerWidgetUI._ui_config.position = opts["position"] ? opts["position"] : {"align": "right", "vertical-align":"bottom"};
+				CornerWidgetUI._ui_config.position = w_conf["position"] ? w_conf["position"] : {"align": "right", "vertical-align":"bottom"};
 				CornerWidgetUI._ui_config.css = opts["css"] ? opts["css"] : "https://8d69a4badb4c0e3cd487-efd95a2de0a33cb5b6fcd4ec94d1740c.ssl.cf2.rackcdn.com/css/CornerWidgetUI.stable.latest.min.css";
+
+				//Store the whitelist or blacklist of URL patterns
+				CornerWidgetUI._ui_config.restrictions = w_conf["display_restrictions"] ? w_conf["display_restrictions"] : {"mode": "blacklist", "list": []};
+
 				//Prepare the Utils Config for fancy telephone input
 				CornerWidgetUI._ui_config.tel_input_prefs = 
 					{ "defaultCountry": "auto",
@@ -114,7 +124,25 @@ CornerWidgetUI.init = function (opts){
 				//Load the menu tree ML into a var
 				CornerWidgetUI._ui_config.menutree = CornerWidgetUI.menu_tree(resp["menu"]["tree"]["children"], CornerWidgetUI._ui_config["default_lang"]);
 
-				//Define the widget components
+				//Validate that the current URL is permitted to be displayed from the config list
+				var url_match = false;
+				for (var i=0; i < CornerWidgetUI._ui_config.restrictions["list"].length; i++){
+					try{
+						var regex_test = new RegExp(CornerWidgetUI._ui_config.restrictions["list"][i]["pattern"]);
+						if (regex_test.test(document.location.href)){
+							url_match = true;
+							break;
+						}
+					}catch (e){
+						console.log("Unable to enforce regex URL check for: "+CornerWidgetUI._ui_config.restrictions["list"][i]);
+					}
+				}
+				if (url_match && CornerWidgetUI._ui_config.restrictions["mode"]=="blacklist")
+					return; //blacklisted URL, do not proceed with display
+				else if (!url_match && CornerWidgetUI._ui_config.restrictions["mode"]=="whitelist")
+					return; //whitelist mode, but URL not allowed, do not proceed with display
+
+				//Define the widget components and begin display rendering
 				var _ui_widget_btn = document.createElement( "DIV" );
 				_ui_widget_btn.id = CornerWidgetUI.constants._uivar_widgetID;
 				var _ui_widget_bar = document.createElement( "DIV" );

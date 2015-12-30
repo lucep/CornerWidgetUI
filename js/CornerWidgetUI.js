@@ -100,6 +100,7 @@ CornerWidgetUI.init = function (opts){
 				CornerWidgetUI._ui_config.validation = {limit: w_conf["validation_limit"] ? w_conf["validation_limit"] : 1,
 														count: 0};
 				CornerWidgetUI._ui_config.auto_open = w_conf["auto_open"] ? w_conf["auto_open"] : 13000; //default to 13 seconds after loading to open the widget
+				CornerWidgetUI._ui_config.auto_open_over_px = w_conf["auto_open_over_px"] ? w_conf["auto_open_over_px"] : 700
 				//Configurable element to determine positioning - default to bottom right alignment
 				CornerWidgetUI._ui_config.position = w_conf["position"] ? w_conf["position"] : {"align": "right", "vertical-align":"bottom"};
 				CornerWidgetUI._ui_config.css = opts["css"] ? opts["css"] : "https://8d69a4badb4c0e3cd487-efd95a2de0a33cb5b6fcd4ec94d1740c.ssl.cf2.rackcdn.com/css/CornerWidgetUI.stable.latest.min.css";
@@ -475,6 +476,9 @@ CornerWidgetUI.control = function (params){
 		CornerWidgetUI._prev_state = CornerWidgetUI._curr_state;
 		CornerWidgetUI._curr_state = "raised_lead";
 
+		//set the default state to closed
+		$lucep.put_data({"key": "lucep-state", "value": "closed"});
+
 		break;
 
 	case 'auto_open':
@@ -635,7 +639,12 @@ CornerWidgetUI.control = function (params){
 			CornerWidgetUI._curr_state = params.state;
 
 			//check if auto open is active for fresh page loads, and check previous state
-			if (CornerWidgetUI._ui_config.auto_open > 0 && (!$lucep["get_data"]({"key": "lucep-state"}) || $lucep["get_data"]({"key": "lucep-state"}) == "open")){
+			if (CornerWidgetUI._ui_config.auto_open > 0 
+				&& (screen ? (screen.width ? screen.width > CornerWidgetUI._ui_config.auto_open_over_px : true) : true) 
+				&& (!$lucep["get_data"]({"key": "lucep-state"}) 
+					|| $lucep["get_data"]({"key": "lucep-state"}) == "open"
+				   )
+			   ){
 				setTimeout(function(){
 					if (! window.intlTelInputUtils){
 						//If the utils have not loaded, try to load them (insurance!)

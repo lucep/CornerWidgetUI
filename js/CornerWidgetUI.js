@@ -37,6 +37,7 @@ CornerWidgetUI.constants = {
 	_uivar_formdataID : "gorillaForm",
 	_uivar_botholder: "gorillaBT",
 	_uivar_kill : "gorillaEnd",
+	_uivar_xboxID: "gorillaX",
 
 	//IDs for the form elements
 	_uivar_leadnameID: "gorillaFormName",
@@ -148,11 +149,18 @@ CornerWidgetUI.init = function (opts){
 				var _ui_widget_bar = document.createElement( "DIV" );
 				_ui_widget_bar.id = CornerWidgetUI.constants._uivar_barID;
 				_ui_widget_bar.className = "a-gorilla-loading";
+				var _ui_widget_x = document.createElement( "DIV" );
+				_ui_widget_x.id = CornerWidgetUI.constants._uivar_xboxID;
+				_ui_widget_x.className = "a-gorilla-loading";
+
 				//if the widget has been recently loaded, then avoid animations on page load
-				if ( CornerWidgetUI._within_session() )
+				if ( CornerWidgetUI._within_session() ){
 					_ui_widget_btn.className = "";
-				else
+						_ui_widget_x.className = "";
+				}else{
 					_ui_widget_btn.className = "a-gorilla-loading";
+					_ui_widget_x.className = "a-gorilla-loading";
+				}
 				
 				var _ui_widget_box = document.createElement( "DIV" );
 				_ui_widget_box.id =	CornerWidgetUI.constants._uivar_boxID
@@ -164,6 +172,7 @@ CornerWidgetUI.init = function (opts){
 				if ( document.body != null ) {
 					document.body.appendChild( _ui_widget_btn );
 					document.body.appendChild( _ui_widget_bar );
+					document.body.appendChild( _ui_widget_x );
 					document.body.appendChild( _ui_widget_box );
 					document.body.appendChild( _ui_pulse );
 				}
@@ -171,6 +180,7 @@ CornerWidgetUI.init = function (opts){
 				//Attach references to the DOM elements to the JS for ease of access
 				CornerWidgetUI.elem_widget_btn = document.getElementById( CornerWidgetUI.constants._uivar_widgetID );
 				CornerWidgetUI.elem_widget_bar = document.getElementById( CornerWidgetUI.constants._uivar_barID );
+				CornerWidgetUI.elem_widget_x = document.getElementById( CornerWidgetUI.constants._uivar_xboxID );
 				CornerWidgetUI.elem_widget_box = document.getElementById( CornerWidgetUI.constants._uivar_boxID );
 				CornerWidgetUI.elem_pulse = document.getElementById( CornerWidgetUI.constants._uivar_pulseID );
 
@@ -310,6 +320,9 @@ CornerWidgetUI._draw_ui = function (){
 	//add the text to the bar
 	CornerWidgetUI.elem_widget_bar.innerHTML = "<span id='gorillaBarTxt'>"+CornerWidgetUI._ui_config["closed_txt"][CornerWidgetUI._ui_config["default_lang"]]+"</span>";
 	
+	//add the X to the x-box
+	CornerWidgetUI.elem_widget_x.innerHTML = "X";
+
 	//if there is some actual content in the telephone number then populate it
 	if (prev_tel != "")
 		document["getElementById"](CornerWidgetUI.constants._uivar_leadtelID)["value"] = prev_tel;
@@ -340,6 +353,19 @@ CornerWidgetUI._bind_events = function (opts){
 
 		//fire the UI control function
 		CornerWidgetUI.control( { state: "clicked_icon",
+								  event: event,
+								  elem: this } );
+	} );
+	CornerWidgetUI.elem_widget_x.addEventListener( "click", function( e ) {
+		//capture the event, add support for older browsers
+		var event = e || window.event;
+		if (! window.intlTelInputUtils){
+			//If the utils have not loaded, try to load them (insurance!)
+			jQuery("#"+CornerWidgetUI.constants._uivar_leadtelID).intlTelInput("loadUtils", CornerWidgetUI._ui_config.tel_input_prefs["utilsScript"] );
+		}
+
+		//fire the UI control function
+		CornerWidgetUI.control( { state: "clicked_x",
 								  event: event,
 								  elem: this } );
 	} );
@@ -454,15 +480,21 @@ CornerWidgetUI.control = function (params){
 	case 'auto_open':
 	case 'tapped_icon':
 	case 'clicked_icon':
+	case 'clicked_x':
 		//toggle visibility
 		if ( CornerWidgetUI.elem_widget_btn.className == "a-gorilla-clicked" && params.state != 'auto_open' ) {
 			//remove any custom styles applied by previous clicks
 			CornerWidgetUI._manage_styles({ elem: CornerWidgetUI.elem_widget_btn,
-											reset: [CornerWidgetUI._ui_config.position["vertical-align"], CornerWidgetUI._ui_config.position["align"]] });
+											reset: [CornerWidgetUI._ui_config.position["vertical-align"], 
+													CornerWidgetUI._ui_config.position["align"]] });
+			CornerWidgetUI._manage_styles({ elem: CornerWidgetUI.elem_widget_x,
+											reset: [CornerWidgetUI._ui_config.position["vertical-align"], 
+													CornerWidgetUI._ui_config.position["align"]] });
 			CornerWidgetUI._manage_styles({ elem: CornerWidgetUI.elem_widget_box,
 											reset: ["height"]});
 			CornerWidgetUI._manage_styles({ elem: CornerWidgetUI.elem_widget_bar,
-											reset: [CornerWidgetUI._ui_config.position["vertical-align"], CornerWidgetUI._ui_config.position["align"]]});
+											reset: [CornerWidgetUI._ui_config.position["vertical-align"], 
+													CornerWidgetUI._ui_config.position["align"]]});
 			CornerWidgetUI._declare_bar_length();
 			
 			//ensure state is restored properly
@@ -470,6 +502,7 @@ CornerWidgetUI.control = function (params){
 				//regular behaviour
 				CornerWidgetUI.elem_widget_btn.className = "";
 				CornerWidgetUI.elem_widget_box.className = "";
+				CornerWidgetUI.elem_widget_x.className = "";
 				CornerWidgetUI.elem_widget_bar.className = "";
 
 				//Update state
@@ -513,6 +546,14 @@ CornerWidgetUI.control = function (params){
 										   "style": CornerWidgetUI._dyn_obj([{key: CornerWidgetUI._ui_config.position["vertical-align"], value: (CornerWidgetUI.elem_formdata.clientHeight + 13 + 20)+"px"},
 																			{key: CornerWidgetUI._ui_config.position["align"], value: (CornerWidgetUI.elem_formdata.clientWidth+20)+"px"}]),
 										   "className": "a-gorilla-clicked" });
+
+			CornerWidgetUI._manage_styles({"elem": CornerWidgetUI.elem_widget_x,
+										   "style": CornerWidgetUI._dyn_obj([{key: CornerWidgetUI._ui_config.position["vertical-align"], 
+																			  value: (CornerWidgetUI.elem_formdata.clientHeight + 13 + 30)+"px"},
+																			{key: CornerWidgetUI._ui_config.position["align"], 
+																			 value: "5px"}]),
+										   "className": "a-gorilla-clicked" });
+
 
 			CornerWidgetUI._manage_styles({"elem": CornerWidgetUI.elem_widget_box,
 										   "style": {"height": (CornerWidgetUI.elem_formdata.clientHeight + 13)+"px",

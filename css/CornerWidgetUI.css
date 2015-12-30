@@ -1,6 +1,6 @@
 @import url(https://fonts.googleapis.com/css?family=Cabin:400,700);
 
-#gorillaPulse, #gorillaPulse.emit, #gorillaWidget, #gorillaBox, #gorillaForm, #gorillaForm input,  #gorillaForm button, #gorillaLabel, #gorillaBar, #gorillaBarTxt, #gorillaForm select#gorillaFormService {
+#gorillaPulse, #gorillaPulse.emit, #gorillaWidget, #gorillaBox, #gorillaX, #gorillaForm, #gorillaForm input,  #gorillaForm button, #gorillaLabel, #gorillaBar, #gorillaBarTxt, #gorillaForm select#gorillaFormService {
 	background-attachment: scroll;
     background-color: transparent;
     background-image: none;
@@ -20,12 +20,12 @@
     float: none;
     font-family: 'Cabin', serif;
     font-size: inherit;
-    font-style: inherit;
+    font-style: normal;
     font-variant: normal;
     font-weight: inherit;
     height: auto;
     letter-spacing: normal;
-    line-height: inherit;
+    line-height: normal;
     list-style-type: inherit;
     list-style-position: inside;
     list-style-image: none;
@@ -155,7 +155,7 @@
 	height: 60px;
 	border-radius: 100%;
 	background: #4067CB;
-	z-index: 1000;
+	z-index: 1001;
 	transition: all 1s;
 	overflow: hidden;
 	background-image: url('https://8d69a4badb4c0e3cd487-efd95a2de0a33cb5b6fcd4ec94d1740c.ssl.cf2.rackcdn.com/img/white-phone.png');
@@ -166,8 +166,23 @@
 	-ms-transform: rotate(120deg);
 	-webkit-transform: rotate(120deg);
 }
+#gorillaX{
+	position: fixed;
+	bottom: 40px;
+	right: 40px;
+	width: 0px;
+	height: 0px;
+	background: #FFF;
+	border: 1px solid #4067CB;
+	overflow: hidden;
+	z-index: 1000;
+	transition: all 1s;
+	text-align: center;
+	border-radius: 5px;
+	font-size: 1px;
+}
 
-#gorillaWidget.a-gorilla-loading{
+#gorillaWidget.a-gorilla-loading, #gorillaX.a-gorilla-loading{
 	width: 1px;
 	height: 1px;
 	bottom: 39px;
@@ -181,6 +196,13 @@
 	-webkit-transform: rotate(0deg);
 	bottom: 225px;
 	right: 200px;
+}
+#gorillaX.a-gorilla-clicked{
+	width: 40px;
+	height: 40px;
+	line-height: 40px;
+	border: 1px solid #4067CB;
+	font-size: 22px;
 }
 
 #gorillaWidget.a-gorilla-aboutToWait{

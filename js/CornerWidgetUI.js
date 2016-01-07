@@ -57,7 +57,7 @@ CornerWidgetUI.menu_tree = function ( nodes, langcode ) {
 	var menu_ml = "";
 	for (var i=0; i < nodes.length; i++){
 		if ( Object.prototype.toString.call(nodes[i]["children"]) === '[object Array]' )
-			menu_ml += L.SalesGorilla.UI.menu_tree(nodes[i]["children"], langcode);
+			menu_ml += CornerWidgetUI.menu_tree(nodes[i]["children"], langcode);
 		else
 			menu_ml += "<option value='" + nodes[i]["service_id"] + "'>" + nodes[i]["lt"][langcode] + "</option>";
 	}

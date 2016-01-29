@@ -443,11 +443,14 @@ CornerWidgetUI._manage_styles = function (params){
 CornerWidgetUI.control = function (params){
 	switch ( params.state ) {
 	case 'raised_lead':
-
+		
 		//Start by removing any custom styles
 		CornerWidgetUI._manage_styles({ elem: CornerWidgetUI.elem_widget_btn,
 										reset: [CornerWidgetUI._ui_config.position["vertical-align"], CornerWidgetUI._ui_config.position["align"]],
-										className: "a-gorilla-aboutToWait" })
+										className: "a-gorilla-aboutToWait" });
+		CornerWidgetUI._manage_styles({ elem: CornerWidgetUI.elem_widget_x,
+										reset: [CornerWidgetUI._ui_config.position["vertical-align"], 
+												CornerWidgetUI._ui_config.position["align"]] });
 		CornerWidgetUI._manage_styles({ elem: CornerWidgetUI.elem_widget_box,
 										reset: "height"});
 		CornerWidgetUI._manage_styles({ elem: CornerWidgetUI.elem_widget_bar });

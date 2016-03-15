@@ -92,7 +92,7 @@ CornerWidgetUI.init = function (opts){
 				CornerWidgetUI._ui_config.closed_txt = w_conf["closed_txt"] ? w_conf["closed_txt"] : { "eng" : "Click here to get a callback" };
 				CornerWidgetUI._ui_config.open_txt = w_conf["open_txt"] ? w_conf["open_txt"] : {"eng" : "Please tell us how to contact you, and we'll give you a call back now" };
 				CornerWidgetUI._ui_config.extra_fields = w_conf["extra_fields"] ? w_conf["extra_fields"] : {};
-				CornerWidgetUI._ui_config.colour = w_conf["color"] ? w_conf["color"] : {"background": "#4067CB"}; //Lucep blue
+				CornerWidgetUI._ui_config.color = w_conf["color"] ? w_conf["color"] : {"background": "#4067CB"}; //Lucep blue
 				CornerWidgetUI._ui_config.url = opts["url"] ? opts["url"] : "default";
 				CornerWidgetUI._ui_config.kiosk_id = w_conf["id"] ? w_conf["id"] : "1";
 				CornerWidgetUI._ui_config.button_cta = w_conf["button_cta"] ? w_conf["button_cta"] : {"eng": "Call me!"};
@@ -184,6 +184,7 @@ CornerWidgetUI.init = function (opts){
 				CornerWidgetUI.elem_widget_x = document.getElementById( CornerWidgetUI.constants._uivar_xboxID );
 				CornerWidgetUI.elem_widget_box = document.getElementById( CornerWidgetUI.constants._uivar_boxID );
 				CornerWidgetUI.elem_pulse = document.getElementById( CornerWidgetUI.constants._uivar_pulseID );
+
 
 
 				//Prepare the CSS file
@@ -327,6 +328,19 @@ CornerWidgetUI._draw_ui = function (){
 	//if there is some actual content in the telephone number then populate it
 	if (prev_tel != "")
 		document["getElementById"](CornerWidgetUI.constants._uivar_leadtelID)["value"] = prev_tel;
+
+	CornerWidgetUI._add_custom_color();
+};
+
+CornerWidgetUI._add_custom_color = function () {
+	document.getElementById(CornerWidgetUI.constants._uivar_widgetID).style.backgroundColor = CornerWidgetUI._ui_config.color.background;
+	document.getElementById(CornerWidgetUI.constants._uivar_boxID).style.borderColor = CornerWidgetUI._ui_config.color.background;
+	document.getElementById(CornerWidgetUI.constants._uivar_xboxID).style.borderColor = CornerWidgetUI._ui_config.color.background;
+	for (var i = 0; i < document.getElementById(CornerWidgetUI.constants._uivar_formdataID).children.length; i++) {
+		document.getElementById(CornerWidgetUI.constants._uivar_formdataID).children[i].style.borderColor = CornerWidgetUI._ui_config.color.background;
+	}
+	document.getElementById(CornerWidgetUI.constants._uivar_leadtelID).style.borderColor = CornerWidgetUI._ui_config.color.background;
+	document.getElementById(CornerWidgetUI.constants._uivar_barID).style.borderColor = CornerWidgetUI._ui_config.color.background;
 };
 
 CornerWidgetUI._bind_events = function (opts){
@@ -437,7 +451,7 @@ CornerWidgetUI._manage_styles = function (params){
 	
 
 	params["elem"]["className"] = params["className"] ? params["className"] : "";
-	
+	CornerWidgetUI._add_custom_color();
 };
 
 CornerWidgetUI.control = function (params){

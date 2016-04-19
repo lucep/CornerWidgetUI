@@ -285,7 +285,7 @@
 	width: 180px;
 	border-radius: 5px;
 	border: 1px solid #4067CB;
-	padding: 5px 5px 5px 48px;
+	padding: 5px 5px 5px 48px !important;
 	transition: box-shadow 1s ease;
 }
 #gorillaForm input#gorillaFormTel.a-gorilla-error{

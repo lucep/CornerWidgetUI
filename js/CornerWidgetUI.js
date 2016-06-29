@@ -318,45 +318,45 @@ CornerWidgetUI._declare_bar_length = function(){
 CornerWidgetUI._draw_ui = function (){
 
 	//Define the widget components and begin display rendering
-				var _ui_widget_btn = document.createElement( "DIV" );
-				_ui_widget_btn.id = CornerWidgetUI.constants._uivar_widgetID;
-				var _ui_widget_bar = document.createElement( "DIV" );
-				_ui_widget_bar.id = CornerWidgetUI.constants._uivar_barID;
-				_ui_widget_bar.className = "a-gorilla-loading";
-				var _ui_widget_x = document.createElement( "DIV" );
-				_ui_widget_x.id = CornerWidgetUI.constants._uivar_xboxID;
-				_ui_widget_x.className = "a-gorilla-loading";
+	var _ui_widget_btn = document.createElement( "DIV" );
+	_ui_widget_btn.id = CornerWidgetUI.constants._uivar_widgetID;
+	var _ui_widget_bar = document.createElement( "DIV" );
+	_ui_widget_bar.id = CornerWidgetUI.constants._uivar_barID;
+	_ui_widget_bar.className = "a-gorilla-loading";
+	var _ui_widget_x = document.createElement( "DIV" );
+	_ui_widget_x.id = CornerWidgetUI.constants._uivar_xboxID;
+	_ui_widget_x.className = "a-gorilla-loading";
 
-				//if the widget has been recently loaded, then avoid animations on page load
-				if ( CornerWidgetUI._within_session() ){
-					_ui_widget_btn.className = "";
-						_ui_widget_x.className = "";
-				}else{
-					_ui_widget_btn.className = "a-gorilla-loading";
-					_ui_widget_x.className = "a-gorilla-loading";
-				}
-				
-				var _ui_widget_box = document.createElement( "DIV" );
-				_ui_widget_box.id =	CornerWidgetUI.constants._uivar_boxID
-				
-				var _ui_pulse = document.createElement( "DIV" );
-				_ui_pulse.id = CornerWidgetUI.constants._uivar_pulseID;
-				
-				//Add the components to the body
-				if ( document.body != null ) {
-					document.body.appendChild( _ui_widget_btn );
-					document.body.appendChild( _ui_widget_bar );
-					document.body.appendChild( _ui_widget_x );
-					document.body.appendChild( _ui_widget_box );
-					document.body.appendChild( _ui_pulse );
-				}
-				
-				//Attach references to the DOM elements to the JS for ease of access
-				CornerWidgetUI.elem_widget_btn = document.getElementById( CornerWidgetUI.constants._uivar_widgetID );
-				CornerWidgetUI.elem_widget_bar = document.getElementById( CornerWidgetUI.constants._uivar_barID );
-				CornerWidgetUI.elem_widget_x = document.getElementById( CornerWidgetUI.constants._uivar_xboxID );
-				CornerWidgetUI.elem_widget_box = document.getElementById( CornerWidgetUI.constants._uivar_boxID );
-				CornerWidgetUI.elem_pulse = document.getElementById( CornerWidgetUI.constants._uivar_pulseID );
+	//if the widget has been recently loaded, then avoid animations on page load
+	if ( CornerWidgetUI._within_session() ){
+		_ui_widget_btn.className = "";
+			_ui_widget_x.className = "";
+	}else{
+		_ui_widget_btn.className = "a-gorilla-loading";
+		_ui_widget_x.className = "a-gorilla-loading";
+	}
+	
+	var _ui_widget_box = document.createElement( "DIV" );
+	_ui_widget_box.id =	CornerWidgetUI.constants._uivar_boxID
+	
+	var _ui_pulse = document.createElement( "DIV" );
+	_ui_pulse.id = CornerWidgetUI.constants._uivar_pulseID;
+	
+	//Add the components to the body
+	if ( document.body != null ) {
+		document.body.appendChild( _ui_widget_btn );
+		document.body.appendChild( _ui_widget_bar );
+		document.body.appendChild( _ui_widget_x );
+		document.body.appendChild( _ui_widget_box );
+		document.body.appendChild( _ui_pulse );
+	}
+	
+	//Attach references to the DOM elements to the JS for ease of access
+	CornerWidgetUI.elem_widget_btn = document.getElementById( CornerWidgetUI.constants._uivar_widgetID );
+	CornerWidgetUI.elem_widget_bar = document.getElementById( CornerWidgetUI.constants._uivar_barID );
+	CornerWidgetUI.elem_widget_x = document.getElementById( CornerWidgetUI.constants._uivar_xboxID );
+	CornerWidgetUI.elem_widget_box = document.getElementById( CornerWidgetUI.constants._uivar_boxID );
+	CornerWidgetUI.elem_pulse = document.getElementById( CornerWidgetUI.constants._uivar_pulseID );
 
 
 	CornerWidgetUI._declare_bar_length();
@@ -384,7 +384,7 @@ CornerWidgetUI._draw_ui = function (){
 	
 	//add the X to the x-box
 	CornerWidgetUI.elem_widget_x.innerHTML = "X";
-
+	
 	//if there is some actual content in the telephone number then populate it
 	if (prev_tel != "")
 		document["getElementById"](CornerWidgetUI.constants._uivar_leadtelID)["value"] = prev_tel;
@@ -512,7 +512,6 @@ CornerWidgetUI.control = function (params){
 	switch ( params.state ) {
 	case 'raised_lead':
 		
-		// CornerWidgetUI.jQuery.fn.intlTelInput("loadUtils",CornerWidgetUI._ui_config.tel_input_prefs["utilsScript"] );
 		//Start by removing any custom styles
 		CornerWidgetUI._manage_styles({ elem: CornerWidgetUI.elem_widget_btn,
 										reset: [CornerWidgetUI._ui_config.position["vertical-align"], CornerWidgetUI._ui_config.position["align"]],

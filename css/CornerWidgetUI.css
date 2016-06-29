@@ -180,6 +180,7 @@
 	text-align: center;
 	border-radius: 5px;
 	font-size: 1px;
+	cursor: pointer;
 }
 
 #gorillaWidget.a-gorilla-loading, #gorillaX.a-gorilla-loading{
@@ -309,7 +310,6 @@ ul.country-list {
 	border: 2px solid #4067CB;
 	border-radius: 5px;
 	width: 150px;
-	height: 30px;
 	margin: 10px 15px 0px 15px;
 	text-align: center;
 }

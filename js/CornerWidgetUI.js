@@ -763,10 +763,18 @@ CornerWidgetUI.control = function (params){
 
 };
 
+CornerWidgetUI._fail_submit = function (elem_id) {
+	CornerWidgetUI.jQuery("#"+elem_id).addClass("a-gorilla-error");
+	setTimeout(function(){
+		CornerWidgetUI.jQuery("#"+elem_id).removeClass("a-gorilla-error");
+	},1000);
+	CornerWidgetUI._ui_config.validation.count++;
+}
+
 CornerWidgetUI._raise_lead = function (btn_ref){
 	//Capture the telephone number as a priority - even if we think it may be a bot
 	//If the utils have failed to load, the number must be extracted differently
-	var tel_no;
+	var tel_no, lead_name;
 	if ( !window["intlTelInputUtils"] || CornerWidgetUI.jQuery("#"+CornerWidgetUI.constants._uivar_leadtelID)["intlTelInput"]("getNumber") === ""){
 		var country_sel = CornerWidgetUI.jQuery(".selected-flag")["attr"]("title");
 		var country_code = country_sel.substr(country_sel.indexOf(": +")+2, 5);
@@ -782,7 +790,7 @@ CornerWidgetUI._raise_lead = function (btn_ref){
 		tel_no = CornerWidgetUI.jQuery("#"+CornerWidgetUI.constants._uivar_leadtelID)["intlTelInput"]("getNumber");
 	}
 
-	//Check if the kill flag has been set (antispam measure 1), and that control fields are not edited (antispam meausre 2)
+	//Check if the kill flag has been set (antispam measure 1), and that control fields are not edited (antispam measure 2)
 	if (CornerWidgetUI._block === true || document["getElementById"](CornerWidgetUI.constants._uivar_controlfield1).value != '' ||  document["getElementById"](CornerWidgetUI.constants._uivar_controlfield2).value != CornerWidgetUI.constants._formval_placeholder2){
 		//Log the bot event in analytics
 		$lucep.send_intelligence({event_type: "btslog",
@@ -800,18 +808,47 @@ CornerWidgetUI._raise_lead = function (btn_ref){
 		return true;
 	}
 
-	//Limit field validation to preventing submission only X number of times
-	if ( (! CornerWidgetUI.jQuery("#"+CornerWidgetUI.constants._uivar_leadtelID).intlTelInput("isValidNumber")) && CornerWidgetUI._ui_config.validation.count < CornerWidgetUI._ui_config.validation.limit ) {
-		CornerWidgetUI.jQuery("#"+CornerWidgetUI.constants._uivar_leadtelID).addClass("a-gorilla-error");
-		setTimeout(function(){
-			CornerWidgetUI.jQuery("#"+CornerWidgetUI.constants._uivar_leadtelID).removeClass("a-gorilla-error");
-		},1000);
-		CornerWidgetUI._ui_config.validation.count++;
-		$lucep.send_intelligence({event_type: "bad-number-entry",
-								  payload: {number: tel_no,
-											validationCount: CornerWidgetUI._ui_config.validation.count}});
+	if (window.intlTelInputUtils) {
+		//Limit field validation to preventing submission only X number of times
+		if ( (! CornerWidgetUI.jQuery("#"+CornerWidgetUI.constants._uivar_leadtelID).intlTelInput("isValidNumber")) && CornerWidgetUI._ui_config.validation.count < CornerWidgetUI._ui_config.validation.limit ) {
+			CornerWidgetUI._fail_submit(CornerWidgetUI.constants._uivar_leadtelID)
+			$lucep.send_intelligence({event_type: "bad-number-entry",
+									  payload: {number: tel_no,
+												validationCount: CornerWidgetUI._ui_config.validation.count}});
+			return false;
+		}
+	} else {
+		// if tel input validation isn't working then use 
+		if (CornerWidgetUI.jQuery("#"+CornerWidgetUI.constants._uivar_leadtelID).val().length < 4) {
+			CornerWidgetUI._fail_submit(CornerWidgetUI.constants._uivar_leadtelID)
+			$lucep.send_intelligence(
+				{
+					event_type: "bad-number-entry",
+					payload: {
+						number: tel_no,
+						validationCount: CornerWidgetUI._ui_config.validation.count
+					}
+				}
+			)
+			return false;
+		}
+	}
+
+	// Validate name field
+	if (document["getElementById"](CornerWidgetUI.constants._uivar_leadnameID)["value"]["length"] < 2) {
+		CornerWidgetUI._fail_submit(CornerWidgetUI.constants._uivar_leadnameID)
+		$lucep.send_intelligence(
+			{
+				event_type: "invalid-name-entry",
+				payload: {
+					name: document["getElementById"](CornerWidgetUI.constants._uivar_leadserviceID)["value"],
+					validationCount: CornerWidgetUI._ui_config.validation.count
+				}
+			}
+		)
 		return false;
 	}
+	lead_name = document["getElementById"](CornerWidgetUI.constants._uivar_leadserviceID)["value"];
 	CornerWidgetUI._ui_config.validation.count = 0; //reset the validation restriction as the criteria passed
 	
 	//Store data for future use
@@ -823,7 +860,7 @@ CornerWidgetUI._raise_lead = function (btn_ref){
 		"service_id": document["getElementById"](CornerWidgetUI.constants._uivar_leadserviceID)["value"],
 		"service_name": CornerWidgetUI.jQuery("#gorillaFormService option:selected")["text"](),
 		"phone_number": tel_no,
-		"name": document["getElementById"](CornerWidgetUI.constants._uivar_leadnameID)["value"],
+		"name": lead_name,
 		"callback": function (progress){
 			if (!progress["ticket-status"] && progress["server"]===true){
 				//there was an error on the server, invite the user to try again

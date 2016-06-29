@@ -99,7 +99,7 @@ CornerWidgetUI.init = function (opts){
 				//configurable element to prevent loss of leads due to incorrect validation
 				CornerWidgetUI._ui_config.validation = {limit: w_conf["validation_limit"] ? w_conf["validation_limit"] : 1,
 														count: 0};
-				CornerWidgetUI._ui_config.auto_open = w_conf["auto_open"] ? w_conf["auto_open"] : 13000; //default to 13 seconds after loading to open the widget
+				CornerWidgetUI._ui_config.auto_open = w_conf["auto_open"] ? w_conf["auto_open"] : 3000; //default to 13 seconds after loading to open the widget
 				CornerWidgetUI._ui_config.auto_open_over_px = w_conf["auto_open_over_px"] ? w_conf["auto_open_over_px"] : 700
 				//Configurable element to determine positioning - default to bottom right alignment
 				CornerWidgetUI._ui_config.position = w_conf["position"] ? w_conf["position"] : {"align": "right", "vertical-align":"bottom"};
@@ -110,11 +110,10 @@ CornerWidgetUI.init = function (opts){
 
 				//Prepare the Utils Config for fancy telephone input
 				CornerWidgetUI._ui_config.tel_input_prefs = 
-					{ "defaultCountry": "auto",
+					{ "initialCountry": "auto",
 					  "nationalMode": true,
 					  "preferredCountries": resp["default_countries"] ? resp["default_countries"] : ["us", "gb", "sg"], 
 					  "responsiveDropdown": true,
-					  "utilsScript": "https://8d69a4badb4c0e3cd487-efd95a2de0a33cb5b6fcd4ec94d1740c.ssl.cf2.rackcdn.com/js/telutils.js",
 					  "geoIpLookup": function(callback){
 						  $lucep["get_geo_data"]({callback: function (resp){
 							  var countryCode = (resp && resp.country) ? resp.country : "";
@@ -123,6 +122,7 @@ CornerWidgetUI.init = function (opts){
 					  }
 					};
 				
+
 				//Load the menu tree ML into a var
 				CornerWidgetUI._ui_config.menutree = CornerWidgetUI.menu_tree(resp["menu"]["tree"]["children"], CornerWidgetUI._ui_config["default_lang"]);
 
@@ -144,7 +144,161 @@ CornerWidgetUI.init = function (opts){
 				else if (!url_match && CornerWidgetUI._ui_config.restrictions["mode"]=="whitelist")
 					return; //whitelist mode, but URL not allowed, do not proceed with display
 
-				//Define the widget components and begin display rendering
+				
+
+
+				//Prepare the CSS file
+				var css_file = document.createElement( "link" );
+				css_file.rel = "stylesheet";
+				css_file.media = "screen";
+				css_file.type = "text/css";
+				css_file.href = CornerWidgetUI._ui_config.css,
+				css_file.onload = function(){
+					CornerWidgetUI._load_libraries(opts);
+				};
+				//attach the CSS file so the UI can load
+				CornerWidgetUI._attach_css(css_file);
+			}
+		}
+	);
+};
+
+CornerWidgetUI._within_session = function (opts){
+	var within_time = false;
+	if ( $lucep["get_data"]( {"key": "gorilla-last-launch"} ) &&
+		 ( $lucep["get_data"]( {"key": "gorilla-last-launch"} ) + CornerWidgetUI.constants.SESSION_WINDOW > ( new Date() ).getTime() ) ) {
+		//the widget was last launched in less than the specified window - store true as the return value
+		within_time = true;
+	}
+
+	//Update/store the information about this interaction
+	if ( opts )
+		$lucep["put_data"]( {"key": "gorilla-last-launch", "value": ( new Date() ).getTime()} );
+
+	return within_time;
+
+};
+
+CornerWidgetUI._attach_css = function (css_file){
+	if ( document.head != null )
+		document.head.appendChild( css_file );
+	else
+		setTimeout(function(){
+			CornerWidgetUI._attach_css( css_file );
+		}, 250);
+};
+
+CornerWidgetUI._load_libraries = function(opts){
+	//This UI also requires jQuery and some plugins, so download those in parallel
+	var jquerylib = opts["jquery"] ? opts["jquery"] : "https://ajax.googleapis.com/ajax/libs/jquery/1.11.3/jquery.min.js";
+	var intlTelInput_js = opts["intlTelInput_js"] ? opts["intlTelInput_js"] : "/intlTelInput/js/intlTelInput.js";
+	var intlTelInput_css = opts["intlTelInput_css"] ? opts["intlTelInput_css"] : "/intlTelInput/css/intlTelInput.css"
+	
+	var _load_fancy_telephone_dom = function (opts) {
+
+		CornerWidgetUI._draw_ui(opts);
+
+		CornerWidgetUI.jQuery( "#"+CornerWidgetUI.constants._uivar_leadtelID ).intlTelInput( CornerWidgetUI._ui_config.tel_input_prefs ).done(function() {
+		})
+			//the field has been upgraded, store this fact
+			CornerWidgetUI._f_set = true;
+			CornerWidgetUI._bind_events(opts);
+			CornerWidgetUI.control( { state: "new" } );
+
+
+	};
+
+	var _load_fancy_telephone_css = function(opts) {
+		$lucep.add( { href: intlTelInput_css,
+				  rel: "stylesheet",
+				  type: "text/css" },
+				function(){	
+				},
+				"head",
+				"link",
+				0);
+	}	
+
+	var _load_fancy_telephone_js = function(opts) {
+		$lucep.add( { src: intlTelInput_js,
+						type: "text/javascript" },
+				function (){
+					_load_fancy_telephone_dom(opts)
+					
+				},
+			"head",
+			"script",
+			0 );
+	}
+
+	var _load_jquery = function(opts) {
+
+		_load_fancy_telephone_css(opts)
+		//add jQuery if it does not exist or has unsupported version
+		if (!window.jQuery || (parseInt(window.jQuery.fn.jquery.split('.')[0]) < 1 || (parseInt(window.jQuery.fn.jquery.split('.')[0]) === 1 && parseInt(window.jQuery.fn.jquery.split('.')[1]) < 5) || parseInt(window.jQuery.fn.jquery.split('.')[0]) >= 3)) {
+			if (window.jQuery) CornerWidgetUI._f_jquery = true;
+			else CornerWidgetUI._f_jquery = false;
+			$lucep.add( { src:  jquerylib, type: ""},
+						function (){
+							if (CornerWidgetUI._f_jquery) {
+								CornerWidgetUI.jQuery = jQuery.noConflict(true);
+								CornerWidgetUI.$ = CornerWidgetUI.jQuery;
+							} else {
+								CornerWidgetUI.jQuery = window.jQuery;
+								CornerWidgetUI.$ = CornerWidgetUI.jQuery;
+							}
+							CornerWidgetUI._ui_config.tel_input_prefs.jQuery = CornerWidgetUI.jQuery;
+							_load_fancy_telephone_js(opts);
+						},
+						"head",
+						"script",
+						0 );
+		} else {
+			CornerWidgetUI.jQuery = window.jQuery;
+			CornerWidgetUI.$ = CornerWidgetUI.jQuery;
+			_load_fancy_telephone_js(opts);
+		}
+	}
+
+	// Load the utilsScript first, due the loading issues of the telutils
+	$lucep.add({
+		src: "/intlTelInput/js/telutils.js",
+		type: "text/javascript"
+	}, function() {
+		if (!CornerWidgetUI._f_load) {
+			_load_jquery(opts)
+			CornerWidgetUI._f_load = true;
+		}
+		CornerWidgetUI._f_utils = true;
+	},
+	"head",
+	"script", 0)
+
+	// If utils doesnt load for 3 seconds then still load the widget
+	setTimeout(function() {
+		if (!CornerWidgetUI._f_load) {
+			_load_jquery(opts)
+			CornerWidgetUI._f_load = true;
+		}	
+	}, 3000)
+};
+
+CornerWidgetUI._declare_bar_length = function(){
+	//If the DOM elements are available, then proceed with the class changes and width management
+	if (CornerWidgetUI._cssLoad){
+		if (!CornerWidgetUI._bar_length)
+			CornerWidgetUI._bar_length = document.getElementById(CornerWidgetUI.constants._uivar_barTxtID).clientWidth;
+		CornerWidgetUI._manage_styles( {"elem": document.getElementById(CornerWidgetUI.constants._uivar_barID),
+									  "style": {"width": CornerWidgetUI._bar_length+"px"} });
+	}else{
+		//inform the upcoming functions that the CSS will likely be loaded by this point
+		CornerWidgetUI._cssLoad = true;
+	}
+};
+
+CornerWidgetUI._draw_ui = function (){
+
+	//Define the widget components and begin display rendering
 				var _ui_widget_btn = document.createElement( "DIV" );
 				_ui_widget_btn.id = CornerWidgetUI.constants._uivar_widgetID;
 				var _ui_widget_bar = document.createElement( "DIV" );
@@ -186,120 +340,7 @@ CornerWidgetUI.init = function (opts){
 				CornerWidgetUI.elem_pulse = document.getElementById( CornerWidgetUI.constants._uivar_pulseID );
 
 
-
-				//Prepare the CSS file
-				var css_file = document.createElement( "link" );
-				css_file.rel = "stylesheet";
-				css_file.media = "screen";
-				css_file.type = "text/css";
-				css_file.href = CornerWidgetUI._ui_config.css,
-				css_file.onload = function(){
-					CornerWidgetUI._load_libraries(opts);
-					CornerWidgetUI._draw_ui(opts);
-					CornerWidgetUI._bind_events(opts);
-					//set the state for the widget
-					CornerWidgetUI.control( { state: "new" } );
-				};
-				//attach the CSS file so the UI can load
-				CornerWidgetUI._attach_css(css_file);
-			}
-		}
-	);
-};
-
-CornerWidgetUI._within_session = function (opts){
-	var within_time = false;
-	if ( $lucep["get_data"]( {"key": "gorilla-last-launch"} ) &&
-		 ( $lucep["get_data"]( {"key": "gorilla-last-launch"} ) + CornerWidgetUI.constants.SESSION_WINDOW > ( new Date() ).getTime() ) ) {
-		//the widget was last launched in less than the specified window - store true as the return value
-		within_time = true;
-	}
-
-	//Update/store the information about this interaction
-	if ( opts )
-		$lucep["put_data"]( {"key": "gorilla-last-launch", "value": ( new Date() ).getTime()} );
-
-	return within_time;
-
-};
-
-CornerWidgetUI._attach_css = function (css_file){
-	if ( document.body != null )
-		document.body.appendChild( css_file );
-	else
-		setTimeout(function(){
-			CornerWidgetUI._attach_css( css_file );
-		}, 250);
-};
-
-CornerWidgetUI._load_libraries = function(opts){
-	//This UI also requires jQuery and some plugins, so download those in parallel
-	var jquerylib = opts["jquery"] ? opts["jquery"] : "https://ajax.googleapis.com/ajax/libs/jquery/1.11.2/jquery.min.js";
-	var intlTelInput_js = opts["intlTelInput_js"] ? opts["intlTelInput_js"] : "https://8d69a4badb4c0e3cd487-efd95a2de0a33cb5b6fcd4ec94d1740c.ssl.cf2.rackcdn.com/js/intlTelInput.js";
-	var intlTelInput_css = opts["intlTelInput_css"] ? opts["intlTelInput_css"] : "https://8d69a4badb4c0e3cd487-efd95a2de0a33cb5b6fcd4ec94d1740c.ssl.cf2.rackcdn.com/css/intlTelInput.css"
-	
-	var _load_fancy_telephone_js = function (opts) {
-		//TODO: Move the intlTelInput script to a gorilla CDN
-		//TODO: Move the utils script to a stable location for gorilla
-		$lucep.add( { src: intlTelInput_js },
-					function (){
-						//check to see if the form has been drawn, if so, then upgrade it
-						if ( jQuery( "#gorillaFormTel" ).length > 0 ) {
-							jQuery( "#"+CornerWidgetUI.constants._uivar_leadtelID ).intlTelInput( CornerWidgetUI._ui_config.tel_input_prefs );
-							//the field has been upgraded, store this fact
-							CornerWidgetUI._f_set = true;
-						}
-					},
-					"head",
-					"script",
-					0 );
-	};
-	
-	var load_fancy_telephone = function (opts) {
-		$lucep.add( { href: intlTelInput_css,
-					  rel: "stylesheet",
-					  type: "text/css" },
-					function(){
-						_load_fancy_telephone_js(opts);
-					},
-					"body",
-					"link",
-					0);
-	};
-	
-	//add jQuery if it does not exist
-	if (!window.jQuery){
-		$lucep.add( { src:  jquerylib },
-					function (){
-						load_fancy_telephone(opts);
-					},
-					"head",
-					"script",
-					0 );
-	} else {
-		load_fancy_telephone(opts);
-	}
-								   
-};
-
-CornerWidgetUI._declare_bar_length = function(){
-	//If the DOM elements are available, then proceed with the class changes and width management
-	if (CornerWidgetUI._cssLoad){
-		if (!CornerWidgetUI._bar_length)
-			CornerWidgetUI._bar_length = document.getElementById(CornerWidgetUI.constants._uivar_barTxtID).clientWidth;
-		CornerWidgetUI._manage_styles( {"elem": document.getElementById(CornerWidgetUI.constants._uivar_barID),
-									  "style": {"width": CornerWidgetUI._bar_length+"px"} });
-	}else{
-		//inform the upcoming functions that the CSS will likely be loaded by this point
-		CornerWidgetUI._cssLoad = true;
-	}
-};
-
-CornerWidgetUI._draw_ui = function (){
-	//allow 1.5secs (LONG TIME!) for the browser to load the CSS file - this duration is applied to avoid DOM property polling
-	setTimeout(function(){
-		CornerWidgetUI._declare_bar_length();
-	}, 1500);
+	CornerWidgetUI._declare_bar_length();
 	
 	//draw the form
 	var _ui_form = document.createElement( "DIV" );
@@ -344,13 +385,7 @@ CornerWidgetUI._add_custom_color = function () {
 };
 
 CornerWidgetUI._bind_events = function (opts){
-	//check if fancy telephone input is enabled, and not loaded, if so then load it
-	if ( window.jQuery && jQuery().intlTelInput && ! CornerWidgetUI._f_set ) {
-		jQuery( "#"+CornerWidgetUI.constants._uivar_leadtelID ).intlTelInput( CornerWidgetUI._ui_config.tel_input_prefs );
-		CornerWidgetUI._f_set = true;
-	}else{
-		//nothing to do at this time
-	}
+
 
 	//Attach the click handler that kills the submission capability (anti-spambot measure)
 	document["getElementById"](CornerWidgetUI.constants._uivar_kill).addEventListener("click", function(e){
@@ -363,7 +398,7 @@ CornerWidgetUI._bind_events = function (opts){
 		var event = e || window.event;
 		if (! window.intlTelInputUtils){
 			//If the utils have not loaded, try to load them (insurance!)
-			jQuery("#"+CornerWidgetUI.constants._uivar_leadtelID).intlTelInput("loadUtils", CornerWidgetUI._ui_config.tel_input_prefs["utilsScript"] );
+			CornerWidgetUI.jQuery("#"+CornerWidgetUI.constants._uivar_leadtelID).intlTelInput("loadUtils", CornerWidgetUI._ui_config.tel_input_prefs["utilsScript"] );
 		}
 
 		//fire the UI control function
@@ -374,9 +409,9 @@ CornerWidgetUI._bind_events = function (opts){
 	CornerWidgetUI.elem_widget_x.addEventListener( "click", function( e ) {
 		//capture the event, add support for older browsers
 		var event = e || window.event;
-		if (! window.intlTelInputUtils){
+		if (!window.intlTelInputUtils){
 			//If the utils have not loaded, try to load them (insurance!)
-			jQuery("#"+CornerWidgetUI.constants._uivar_leadtelID).intlTelInput("loadUtils", CornerWidgetUI._ui_config.tel_input_prefs["utilsScript"] );
+			CornerWidgetUI.jQuery.fn.intlTelInput("loadUtils",CornerWidgetUI._ui_config.tel_input_prefs["utilsScript"] );
 		}
 
 		//fire the UI control function
@@ -390,7 +425,7 @@ CornerWidgetUI._bind_events = function (opts){
 		var event = e || window.event;
 		if (! window.intlTelInputUtils){
 			//If the utils have not loaded, try to load them (insurance!)
-			jQuery("#"+CornerWidgetUI.constants._uivar_leadtelID).intlTelInput("loadUtils", CornerWidgetUI._ui_config.tel_input_prefs["utilsScript"] );
+			CornerWidgetUI.jQuery("#"+CornerWidgetUI.constants._uivar_leadtelID).intlTelInput("loadUtils", CornerWidgetUI._ui_config.tel_input_prefs["utilsScript"] );
 		}
 
 		//fire the UI control function
@@ -409,7 +444,7 @@ CornerWidgetUI._bind_events = function (opts){
 	CornerWidgetUI.elem_field_tel.addEventListener( "change", function (e){
 		if (! window.intlTelInputUtils){
 			//If the utils have not loaded, try to load them (insurance!)
-			jQuery("#"+CornerWidgetUI.constants._uivar_leadtelID).intlTelInput("loadUtils", CornerWidgetUI._ui_config.tel_input_prefs["utilsScript"] );
+			CornerWidgetUI.jQuery("#"+CornerWidgetUI.constants._uivar_leadtelID).intlTelInput("loadUtils", CornerWidgetUI._ui_config.tel_input_prefs["utilsScript"] );
 		}
 	});
 				
@@ -458,6 +493,7 @@ CornerWidgetUI.control = function (params){
 	switch ( params.state ) {
 	case 'raised_lead':
 		
+		// CornerWidgetUI.jQuery.fn.intlTelInput("loadUtils",CornerWidgetUI._ui_config.tel_input_prefs["utilsScript"] );
 		//Start by removing any custom styles
 		CornerWidgetUI._manage_styles({ elem: CornerWidgetUI.elem_widget_btn,
 										reset: [CornerWidgetUI._ui_config.position["vertical-align"], CornerWidgetUI._ui_config.position["align"]],
@@ -486,7 +522,7 @@ CornerWidgetUI.control = function (params){
 			CornerWidgetUI.elem_sendlead_btn.disabled = true;
 
 			$lucep["send_intelligence"]( { event_type: "auto-shrink",
-											 payload: { country: window["jQuery"]( ".selected-flag" )["attr"]( "title" ) }
+											 payload: { country: CornerWidgetUI.jQuery( ".selected-flag" )["attr"]( "title" ) }
 										   } ); //depends on fancy telephone being loaded
 
 		}
@@ -558,7 +594,7 @@ CornerWidgetUI.control = function (params){
 			//track event
 			//TODO: Fix dependency on fancy telephone
 			$lucep["send_intelligence"]( { event_type: "close-prompt",
-										   payload: {"location": window["jQuery"]( ".selected-flag" )["attr"]( "title" ) } } ); //depends on fancy telephone being loaded
+										   payload: {"location": CornerWidgetUI.jQuery( ".selected-flag" )["attr"]( "title" ) } } ); //depends on fancy telephone being loaded
 			$lucep.put_data({"key": "lucep-state", "value": "closed"});
 		} else if ( CornerWidgetUI.elem_widget_btn.className != "a-gorilla-clicked" ){ 
 
@@ -593,7 +629,7 @@ CornerWidgetUI.control = function (params){
 
 			//track event
 			$lucep["send_intelligence"]( { event_type: params.state,
-										   payload: {"location": window["jQuery"]( ".selected-flag" )["attr"]( "title" ) } } ); //depends on fancy telephone being loaded
+										   payload: {"location": CornerWidgetUI.jQuery( ".selected-flag" )["attr"]( "title" ) } } ); //depends on fancy telephone being loaded
 
 			//update state
 			CornerWidgetUI._prev_state = CornerWidgetUI._curr_state;
@@ -663,10 +699,6 @@ CornerWidgetUI.control = function (params){
 				   )
 			   ){
 				setTimeout(function(){
-					if (! window.intlTelInputUtils){
-						//If the utils have not loaded, try to load them (insurance!)
-						jQuery("#"+CornerWidgetUI.constants._uivar_leadtelID).intlTelInput("loadUtils", CornerWidgetUI._ui_config.tel_input_prefs["utilsScript"] );
-					}
 					CornerWidgetUI.control({state: "auto_open"});
 				}, CornerWidgetUI._ui_config.auto_open);
 			}
@@ -710,10 +742,10 @@ CornerWidgetUI._raise_lead = function (btn_ref){
 	//Capture the telephone number as a priority - even if we think it may be a bot
 	//If the utils have failed to load, the number must be extracted differently
 	var tel_no;
-	if ( !window["intlTelInputUtils"] || window["jQuery"]("#"+CornerWidgetUI.constants._uivar_leadtelID)["intlTelInput"]("getNumber") === ""){
-		var country_sel = window["jQuery"](".selected-flag")["attr"]("title");
+	if ( !window["intlTelInputUtils"] || CornerWidgetUI.jQuery("#"+CornerWidgetUI.constants._uivar_leadtelID)["intlTelInput"]("getNumber") === ""){
+		var country_sel = CornerWidgetUI.jQuery(".selected-flag")["attr"]("title");
 		var country_code = country_sel.substr(country_sel.indexOf(": +")+2, 5);
-		var number = window["jQuery"]("#"+CornerWidgetUI.constants._uivar_leadtelID)["val"]();
+		var number = CornerWidgetUI.jQuery("#"+CornerWidgetUI.constants._uivar_leadtelID)["val"]();
 		
 		//check if the phone number prefix is already prefixing the number by being at the starting position.
 		if (number["indexOf"](country_code) === 0){
@@ -722,7 +754,7 @@ CornerWidgetUI._raise_lead = function (btn_ref){
 			tel_no = country_code +""+ number
 		}
 	}else{
-		tel_no = window["jQuery"]("#"+CornerWidgetUI.constants._uivar_leadtelID)["intlTelInput"]("getNumber");
+		tel_no = CornerWidgetUI.jQuery("#"+CornerWidgetUI.constants._uivar_leadtelID)["intlTelInput"]("getNumber");
 	}
 
 	//Check if the kill flag has been set (antispam measure 1), and that control fields are not edited (antispam meausre 2)
@@ -744,10 +776,10 @@ CornerWidgetUI._raise_lead = function (btn_ref){
 	}
 
 	//Limit field validation to preventing submission only X number of times
-	if ( (! jQuery("#"+CornerWidgetUI.constants._uivar_leadtelID).intlTelInput("isValidNumber")) && CornerWidgetUI._ui_config.validation.count < CornerWidgetUI._ui_config.validation.limit ){
-		jQuery("#"+CornerWidgetUI.constants._uivar_leadtelID).addClass("a-gorilla-error");
+	if ( (! CornerWidgetUI.jQuery("#"+CornerWidgetUI.constants._uivar_leadtelID).intlTelInput("isValidNumber")) && CornerWidgetUI._ui_config.validation.count < CornerWidgetUI._ui_config.validation.limit ) {
+		CornerWidgetUI.jQuery("#"+CornerWidgetUI.constants._uivar_leadtelID).addClass("a-gorilla-error");
 		setTimeout(function(){
-			jQuery("#"+CornerWidgetUI.constants._uivar_leadtelID).removeClass("a-gorilla-error");
+			CornerWidgetUI.jQuery("#"+CornerWidgetUI.constants._uivar_leadtelID).removeClass("a-gorilla-error");
 		},1000);
 		CornerWidgetUI._ui_config.validation.count++;
 		$lucep.send_intelligence({event_type: "bad-number-entry",
@@ -761,46 +793,47 @@ CornerWidgetUI._raise_lead = function (btn_ref){
 	$lucep["put_data"]( {"key": "name", "value": document["getElementById"](CornerWidgetUI.constants._uivar_leadnameID)["value"] } );
 	$lucep["put_data"]( {"key": "tel", "value": tel_no } );
 	
-	//trigger lead fire
-	$lucep["raise_lead"](
-		{"payload": {},
-		 "service_id": document["getElementById"](CornerWidgetUI.constants._uivar_leadserviceID)["value"],
-		 "service_name": window["jQuery"]("#gorillaFormService option:selected")["text"](),
-		 "phone_number": tel_no,
-		 "name": document["getElementById"](CornerWidgetUI.constants._uivar_leadnameID)["value"],
-		 "callback": function (progress){
-			 if (!progress["ticket-status"] && progress["server"]===true){
-				 //there was an error on the server, invite the user to try again
-				 //TODO: Invite the user to try again
-				 CornerWidgetUI.control({"state": "new"});
-				 return;
-			 }
-			 //gets notified on the various stages of lead progression/notification
-			 switch(progress["ticket-status"]){
-			 case "new":
-				 CornerWidgetUI.control({"state": "raised_lead"});
-				 return true; // more updates wanted
-				 break;
-				 
-			 case "processing":
-				 CornerWidgetUI.control({"state": "in_call"});
-				 return true; //more updates wanted
-				 break;
-				 
-			 case "finished":
-				 CornerWidgetUI.control({"state": "new"});
-				 return false; //no more updates wanted on this ticket
-				 break;
-				 
-			 case "no-ticket":
-				 CornerWidgetUI.control({"state": "new"});
-				 return false; //no more updates wanted on this ticket
-				 break;
-				 
-			 }
-		 }
+	var lead_opts = {
+		"payload": {},
+		"service_id": document["getElementById"](CornerWidgetUI.constants._uivar_leadserviceID)["value"],
+		"service_name": CornerWidgetUI.jQuery("#gorillaFormService option:selected")["text"](),
+		"phone_number": tel_no,
+		"name": document["getElementById"](CornerWidgetUI.constants._uivar_leadnameID)["value"],
+		"callback": function (progress){
+			if (!progress["ticket-status"] && progress["server"]===true){
+				//there was an error on the server, invite the user to try again
+				//TODO: Invite the user to try again
+				CornerWidgetUI.control({"state": "new"});
+				return;
+			}
+				//gets notified on the various stages of lead progression/notification
+			switch(progress["ticket-status"]){
+				case "new":
+					CornerWidgetUI.control({"state": "raised_lead"});
+					return true; // more updates wanted
+					break;
+
+				case "processing":
+					CornerWidgetUI.control({"state": "in_call"});
+					return true; //more updates wanted
+					break;
+
+				case "finished":
+					CornerWidgetUI.control({"state": "new"});
+					return false; //no more updates wanted on this ticket
+					break;
+
+				case "no-ticket":
+					CornerWidgetUI.control({"state": "new"});
+					return false; //no more updates wanted on this ticket
+					break;
+
+			}
 		}
-	);
+	}
+
+	//trigger lead fire
+	$lucep["raise_lead"](lead_opts);
 	
 	//disable the button
 	btn_ref.disabled = true;

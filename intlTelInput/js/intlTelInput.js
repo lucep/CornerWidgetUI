@@ -59,7 +59,6 @@
         $.fn[pluginName].windowLoaded = true;
     });
     function Plugin(element, options) {
-      console.info('intltelpreinit', $.fn.jquery)
         this.telInput = $(element);
         this.options = $.extend({}, defaults, options);
         // event namespace
@@ -70,7 +69,6 @@
     }
     Plugin.prototype = {
         _init: function() {
-          console.info('intltel', $.fn.jquery)
             // if in nationalMode, disable options relating to dial codes
             if (this.options.nationalMode) {
                 this.options.autoHideDialCode = false;

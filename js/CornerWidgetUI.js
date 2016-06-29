@@ -99,7 +99,9 @@ CornerWidgetUI.init = function (opts){
 				//configurable element to prevent loss of leads due to incorrect validation
 				CornerWidgetUI._ui_config.validation = {limit: w_conf["validation_limit"] ? w_conf["validation_limit"] : 1,
 														count: 0};
-				CornerWidgetUI._ui_config.auto_open = w_conf["auto_open"] ? w_conf["auto_open"] : 3000; //default to 13 seconds after loading to open the widget
+				CornerWidgetUI._ui_config.auto_open = w_conf["auto_open"] ? w_conf["auto_open"] : {"min": 1000, "max": 13000}; 
+				//select random time between min and max
+				CornerWidgetUI._ui_config.auto_open_time = Math.floor(Math.random() * (CornerWidgetUI._ui_config.auto_open.max - CornerWidgetUI._ui_config.auto_open.min)) + CornerWidgetUI._ui_config.auto_open.min;
 				CornerWidgetUI._ui_config.auto_open_over_px = w_conf["auto_open_over_px"] ? w_conf["auto_open_over_px"] : 700
 				//Configurable element to determine positioning - default to bottom right alignment
 				CornerWidgetUI._ui_config.position = w_conf["position"] ? w_conf["position"] : {"align": "right", "vertical-align":"bottom"};
@@ -126,6 +128,7 @@ CornerWidgetUI.init = function (opts){
 
 				//Load the menu tree ML into a var
 				CornerWidgetUI._ui_config.menutree = CornerWidgetUI.menu_tree(resp["menu"]["tree"]["children"], CornerWidgetUI._ui_config["default_lang"]);
+
 
 				//Validate that the current URL is permitted to be displayed from the config list
 				var url_match = false;
@@ -643,9 +646,15 @@ CornerWidgetUI.control = function (params){
 				CornerWidgetUI.elem_widget_box.style.overflow = "visible";
 			}, 1000 );
 
+			var intel_obj = {
+				event_type: params.state,
+				payload: {
+					"location": CornerWidgetUI.jQuery(".selected-flag")["attr"]("title")
+				}
+			}
+			if (params.state === "auto_open") intel_obj.payload["auto_open_time"] = (CornerWidgetUI._ui_config.auto_open_time/1000);
 			//track event
-			$lucep["send_intelligence"]( { event_type: params.state,
-										   payload: {"location": CornerWidgetUI.jQuery( ".selected-flag" )["attr"]( "title" ) } } ); //depends on fancy telephone being loaded
+			$lucep["send_intelligence"]( intel_obj ); //depends on fancy telephone being loaded
 
 			//update state
 			CornerWidgetUI._prev_state = CornerWidgetUI._curr_state;
@@ -708,7 +717,7 @@ CornerWidgetUI.control = function (params){
 			CornerWidgetUI._curr_state = params.state;
 
 			//check if auto open is active for fresh page loads, and check previous state
-			if (CornerWidgetUI._ui_config.auto_open > 0 
+			if (CornerWidgetUI._ui_config.auto_open.min > 0 
 				&& (screen ? (screen.width ? screen.width > CornerWidgetUI._ui_config.auto_open_over_px : true) : true) 
 				&& (!$lucep["get_data"]({"key": "lucep-state"}) 
 					|| $lucep["get_data"]({"key": "lucep-state"}) == "open"
@@ -716,7 +725,7 @@ CornerWidgetUI.control = function (params){
 			   ){
 				setTimeout(function(){
 					CornerWidgetUI.control({state: "auto_open"});
-				}, CornerWidgetUI._ui_config.auto_open);
+				}, CornerWidgetUI._ui_config.auto_open_time);
 			}
 
 		} else {

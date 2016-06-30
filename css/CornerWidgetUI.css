@@ -165,6 +165,7 @@
 	transform: rotate(120deg);
 	-ms-transform: rotate(120deg);
 	-webkit-transform: rotate(120deg);
+	cursor: pointer;
 }
 #gorillaX{
 	position: fixed;
@@ -312,6 +313,7 @@ ul.country-list {
 	width: 150px;
 	margin: 10px 15px 0px 15px;
 	text-align: center;
+	cursor: pointer;
 }
 
 #gorillaForm #gorillaLabel {
@@ -347,7 +349,7 @@ ul.country-list {
     bottom: 20px;
     right: 40px;
     height: auto;
-
+    cursor: pointer;
     border: 1px solid #4067CB;
     z-index: 998;
     transition: all 1s;

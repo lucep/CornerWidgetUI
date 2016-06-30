@@ -87,6 +87,8 @@ CornerWidgetUI.init = function (opts){
 				//Store the server config for this kiosk in memory
 				CornerWidgetUI._ui_config = resp;
 				
+				CornerWidgetUI._calculate_zIndex();
+
 				//TODO: Get parameters configured server side for kiosk details
 				CornerWidgetUI._ui_config.default_lang = w_conf["default_lang"] ? w_conf["default_lang"] : "eng";
 				CornerWidgetUI._ui_config.closed_txt = w_conf["closed_txt"] ? w_conf["closed_txt"] : { "eng" : "Click here to get a callback" };
@@ -113,10 +115,11 @@ CornerWidgetUI.init = function (opts){
 
 				//Prepare the Utils Config for fancy telephone input
 				CornerWidgetUI._ui_config.tel_input_prefs = 
-					{ "initialCountry": "auto",
+					{ "defaultCountry": "auto",
 					  "nationalMode": true,
 					  "preferredCountries": resp["default_countries"] ? resp["default_countries"] : ["us", "gb", "sg"], 
 					  "responsiveDropdown": true,
+					  "utilsScript" : "/intlTelInput/js/telutils.js",
 					  "geoIpLookup": function(callback){
 						  $lucep["get_geo_data"]({callback: function (resp){
 							  var countryCode = (resp && resp.country) ? resp.country : "";
@@ -315,14 +318,25 @@ CornerWidgetUI._declare_bar_length = function(){
 	}
 };
 
+CornerWidgetUI._calculate_zIndex = function() {
+	var nodes = document.getElementsByTagName("*");
+	var maxZ = 1;
+	for (var i = 0; i < nodes.length; i++) {
+	    maxZ = maxZ > (getComputedStyle(nodes[i]).zIndex !== "auto" ? parseInt(getComputedStyle(nodes[i]).zIndex) : 1) ? maxZ : (getComputedStyle(nodes[i]).zIndex !== "auto" ? parseInt(getComputedStyle(nodes[i]).zIndex) : 1);
+	}
+	CornerWidgetUI._ui_config.zIndex = maxZ + 1000;
+}
+
 CornerWidgetUI._draw_ui = function (){
 
 	//Define the widget components and begin display rendering
 	var _ui_widget_btn = document.createElement( "DIV" );
 	_ui_widget_btn.id = CornerWidgetUI.constants._uivar_widgetID;
+
 	var _ui_widget_bar = document.createElement( "DIV" );
 	_ui_widget_bar.id = CornerWidgetUI.constants._uivar_barID;
 	_ui_widget_bar.className = "a-gorilla-loading";
+
 	var _ui_widget_x = document.createElement( "DIV" );
 	_ui_widget_x.id = CornerWidgetUI.constants._uivar_xboxID;
 	_ui_widget_x.className = "a-gorilla-loading";
@@ -337,11 +351,11 @@ CornerWidgetUI._draw_ui = function (){
 	}
 	
 	var _ui_widget_box = document.createElement( "DIV" );
-	_ui_widget_box.id =	CornerWidgetUI.constants._uivar_boxID
+	_ui_widget_box.id =	CornerWidgetUI.constants._uivar_boxID;
 	
 	var _ui_pulse = document.createElement( "DIV" );
 	_ui_pulse.id = CornerWidgetUI.constants._uivar_pulseID;
-	
+
 	//Add the components to the body
 	if ( document.body != null ) {
 		document.body.appendChild( _ui_widget_btn );
@@ -357,7 +371,6 @@ CornerWidgetUI._draw_ui = function (){
 	CornerWidgetUI.elem_widget_x = document.getElementById( CornerWidgetUI.constants._uivar_xboxID );
 	CornerWidgetUI.elem_widget_box = document.getElementById( CornerWidgetUI.constants._uivar_boxID );
 	CornerWidgetUI.elem_pulse = document.getElementById( CornerWidgetUI.constants._uivar_pulseID );
-
 
 	CornerWidgetUI._declare_bar_length();
 	
@@ -384,12 +397,13 @@ CornerWidgetUI._draw_ui = function (){
 	
 	//add the X to the x-box
 	CornerWidgetUI.elem_widget_x.innerHTML = "X";
-	
+
 	//if there is some actual content in the telephone number then populate it
 	if (prev_tel != "")
 		document["getElementById"](CornerWidgetUI.constants._uivar_leadtelID)["value"] = prev_tel;
 
 	CornerWidgetUI._add_custom_color();
+	CornerWidgetUI._set_zIndex();
 };
 
 CornerWidgetUI._add_custom_color = function () {
@@ -402,6 +416,14 @@ CornerWidgetUI._add_custom_color = function () {
 	document.getElementById(CornerWidgetUI.constants._uivar_leadtelID).style.borderColor = CornerWidgetUI._ui_config.color.background;
 	document.getElementById(CornerWidgetUI.constants._uivar_barID).style.borderColor = CornerWidgetUI._ui_config.color.background;
 };
+
+CornerWidgetUI._set_zIndex = function() {
+	CornerWidgetUI.elem_widget_btn.style.zIndex = (CornerWidgetUI._ui_config.zIndex + 4);
+	CornerWidgetUI.elem_widget_x.style.zIndex = CornerWidgetUI._ui_config.zIndex + 3;
+	CornerWidgetUI.elem_widget_bar.style.zIndex = CornerWidgetUI._ui_config.zIndex + 1;
+	CornerWidgetUI.elem_widget_box.style.zIndex = CornerWidgetUI._ui_config.zIndex + 2;
+	CornerWidgetUI.elem_pulse.style.zIndex = CornerWidgetUI._ui_config.zIndex;
+}
 
 CornerWidgetUI._bind_events = function (opts){
 
@@ -461,10 +483,7 @@ CornerWidgetUI._bind_events = function (opts){
 				
 	//Number validation is an important benefit of this widget, and also for the user experience, make sure there are multiple ways it can be validated/checked
 	CornerWidgetUI.elem_field_tel.addEventListener( "change", function (e){
-		if (! window.intlTelInputUtils){
-			//If the utils have not loaded, try to load them (insurance!)
-			CornerWidgetUI.jQuery("#"+CornerWidgetUI.constants._uivar_leadtelID).intlTelInput("loadUtils", CornerWidgetUI._ui_config.tel_input_prefs["utilsScript"] );
-		}
+		
 	});
 				
 	//Attach click handler to submit button
@@ -505,7 +524,6 @@ CornerWidgetUI._manage_styles = function (params){
 	
 
 	params["elem"]["className"] = params["className"] ? params["className"] : "";
-	CornerWidgetUI._add_custom_color();
 };
 
 CornerWidgetUI.control = function (params){
@@ -759,7 +777,8 @@ CornerWidgetUI.control = function (params){
 		else
 			params.event.cancelBubble = true;
 	}
-
+	CornerWidgetUI._add_custom_color();
+	CornerWidgetUI._set_zIndex();
 };
 
 CornerWidgetUI._fail_submit = function (elem_id) {
@@ -778,12 +797,12 @@ CornerWidgetUI._raise_lead = function (btn_ref){
 		var country_sel = CornerWidgetUI.jQuery(".selected-flag")["attr"]("title");
 		var country_code = country_sel.substr(country_sel.indexOf(": +")+2, 5);
 		var number = CornerWidgetUI.jQuery("#"+CornerWidgetUI.constants._uivar_leadtelID)["val"]();
-		
+
 		//check if the phone number prefix is already prefixing the number by being at the starting position.
 		if (number["indexOf"](country_code) === 0){
 			tel_no = number;
 		}else{
-			tel_no = country_code +""+ number
+			tel_no = country_code +""+ number;
 		}
 	}else{
 		tel_no = CornerWidgetUI.jQuery("#"+CornerWidgetUI.constants._uivar_leadtelID)["intlTelInput"]("getNumber");
@@ -847,6 +866,8 @@ CornerWidgetUI._raise_lead = function (btn_ref){
 		)
 		return false;
 	}
+
+
 	lead_name = document["getElementById"](CornerWidgetUI.constants._uivar_leadserviceID)["value"];
 	CornerWidgetUI._ui_config.validation.count = 0; //reset the validation restriction as the criteria passed
 	

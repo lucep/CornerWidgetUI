@@ -107,8 +107,8 @@ CornerWidgetUI.init = function (opts){
 				CornerWidgetUI._ui_config.auto_open_over_px = w_conf["auto_open_over_px"] ? w_conf["auto_open_over_px"] : 700
 				//Configurable element to determine positioning - default to bottom right alignment
 				CornerWidgetUI._ui_config.position = w_conf["position"] ? w_conf["position"] : {"align": "right", "vertical-align":"bottom"};
-				CornerWidgetUI._ui_config.css_theme = w_conf["css"] ? w_conf["css"] : "";
-				CornerWidgetUI._ui_config.css = opts["css"] ? opts["css"] : "https://8d69a4badb4c0e3cd487-efd95a2de0a33cb5b6fcd4ec94d1740c.ssl.cf2.rackcdn.com/css/CornerWidgetUI.stable.latest.min.css";
+				CornerWidgetUI._ui_config.css = opts["css"] ? (opts["css"]) : (w_conf["css"] ? w_conf["css"] : "https://8d69a4badb4c0e3cd487-efd95a2de0a33cb5b6fcd4ec94d1740c.ssl.cf2.rackcdn.com/css/CornerWidgetUI.stable.latest.min.css");
+				console.log(CornerWidgetUI._ui_config.css)
 
 				//Store the whitelist or blacklist of URL patterns
 				CornerWidgetUI._ui_config.restrictions = w_conf["display_restrictions"] ? w_conf["display_restrictions"] : {"mode": "blacklist", "list": []};
@@ -151,32 +151,13 @@ CornerWidgetUI.init = function (opts){
 				else if (!url_match && CornerWidgetUI._ui_config.restrictions["mode"]=="whitelist")
 					return; //whitelist mode, but URL not allowed, do not proceed with display
 
-				
-				var _load_theme = function(opts) {
-					if (CornerWidgetUI._ui_config.css_theme) {
-						//Prepare the CSS file
-						var css_theme_file = document.createElement( "link" );
-						css_theme_file.rel = "stylesheet";
-						css_theme_file.media = "screen";
-						css_theme_file.type = "text/css";
-						css_theme_file.href = CornerWidgetUI._ui_config.css_theme,
-						css_theme_file.onload = function(){
-							CornerWidgetUI._load_libraries(opts);
-						};
-						//attach the CSS file so the UI can load
-						CornerWidgetUI._attach_css(css_theme_file);
-					} else {
-						CornerWidgetUI._load_libraries(opts)
-					}
-				}
-
-				var css_file = document.createElement("link")
+				var css_file = document.createElement("link");
 				css_file.rel = "stylesheet";
 				css_file.media = "screen";
 				css_file.type = "text/css";
 				css_file.href = CornerWidgetUI._ui_config.css,
 				css_file.onload = function(){
-					_load_theme (opts)
+					CornerWidgetUI._load_libraries(opts);
 				};
 				//attach the CSS file so the UI can load
 				CornerWidgetUI._attach_css(css_file);

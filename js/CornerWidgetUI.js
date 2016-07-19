@@ -101,14 +101,15 @@ CornerWidgetUI.init = function (opts){
 				//configurable element to prevent loss of leads due to incorrect validation
 				CornerWidgetUI._ui_config.validation = {limit: w_conf["validation_limit"] ? w_conf["validation_limit"] : 1,
 														count: 0};
-				CornerWidgetUI._ui_config.auto_open = w_conf["auto_open"] ? w_conf["auto_open"] : {"min": 1000, "max": 13000}; 
+				CornerWidgetUI._ui_config.auto_open = {};
+				CornerWidgetUI._ui_config.auto_open.min = w_conf["auto_open"].min ? w_conf["auto_open"].min : 1000;
+				CornerWidgetUI._ui_config.auto_open.max = w_conf["auto_open"].max ? w_conf["auto_open"].max : 13000;
 				//select random time between min and max
 				CornerWidgetUI._ui_config.auto_open_time = Math.floor(Math.random() * (CornerWidgetUI._ui_config.auto_open.max - CornerWidgetUI._ui_config.auto_open.min)) + CornerWidgetUI._ui_config.auto_open.min;
 				CornerWidgetUI._ui_config.auto_open_over_px = w_conf["auto_open_over_px"] ? w_conf["auto_open_over_px"] : 700
 				//Configurable element to determine positioning - default to bottom right alignment
 				CornerWidgetUI._ui_config.position = w_conf["position"] ? w_conf["position"] : {"align": "right", "vertical-align":"bottom"};
 				CornerWidgetUI._ui_config.css = opts["css"] ? (opts["css"]) : (w_conf["css"] ? w_conf["css"] : "https://8d69a4badb4c0e3cd487-efd95a2de0a33cb5b6fcd4ec94d1740c.ssl.cf2.rackcdn.com/css/CornerWidgetUI.stable.latest.min.css");
-				console.log(CornerWidgetUI._ui_config.css)
 
 				//Store the whitelist or blacklist of URL patterns
 				CornerWidgetUI._ui_config.restrictions = w_conf["display_restrictions"] ? w_conf["display_restrictions"] : {"mode": "blacklist", "list": []};
@@ -119,7 +120,7 @@ CornerWidgetUI.init = function (opts){
 					  "nationalMode": true,
 					  "preferredCountries": resp["default_countries"] ? resp["default_countries"] : ["us", "gb", "sg"], 
 					  "responsiveDropdown": true,
-					  "utilsScript" : "/intlTelInput/js/telutils.js",
+					  "utilsScript" : "https://8d69a4badb4c0e3cd487-efd95a2de0a33cb5b6fcd4ec94d1740c.ssl.cf2.rackcdn.com/intlTelInput/js/telutilsv6.0.4.js",
 					  "geoIpLookup": function(callback){
 						  $lucep["get_geo_data"]({callback: function (resp){
 							  var countryCode = (resp && resp.country) ? resp.country : "";
@@ -128,7 +129,6 @@ CornerWidgetUI.init = function (opts){
 					  }
 					};
 				
-
 				//Load the menu tree ML into a var
 				CornerWidgetUI._ui_config.menutree = CornerWidgetUI.menu_tree(resp["menu"]["tree"]["children"], CornerWidgetUI._ui_config["default_lang"]);
 
@@ -183,8 +183,8 @@ CornerWidgetUI._within_session = function (opts){
 };
 
 CornerWidgetUI._attach_css = function (css_file){
-	if ( document.head != null )
-		document.head.appendChild( css_file );
+	if ( document.body != null )
+		document.body.appendChild( css_file );
 	else
 		setTimeout(function(){
 			CornerWidgetUI._attach_css( css_file );
@@ -194,8 +194,8 @@ CornerWidgetUI._attach_css = function (css_file){
 CornerWidgetUI._load_libraries = function(opts){
 	//This UI also requires jQuery and some plugins, so download those in parallel
 	var jquerylib = opts["jquery"] ? opts["jquery"] : "https://ajax.googleapis.com/ajax/libs/jquery/1.11.3/jquery.min.js";
-	var intlTelInput_js = opts["intlTelInput_js"] ? opts["intlTelInput_js"] : "/intlTelInput/js/intlTelInput.js";
-	var intlTelInput_css = opts["intlTelInput_css"] ? opts["intlTelInput_css"] : "/intlTelInput/css/intlTelInput.css"
+	var intlTelInput_js = opts["intlTelInput_js"] ? opts["intlTelInput_js"] : "https://8d69a4badb4c0e3cd487-efd95a2de0a33cb5b6fcd4ec94d1740c.ssl.cf2.rackcdn.com/intlTelInput/js/intlTelInputv6.0.4.js";
+	var intlTelInput_css = opts["intlTelInput_css"] ? opts["intlTelInput_css"] : "https://8d69a4badb4c0e3cd487-efd95a2de0a33cb5b6fcd4ec94d1740c.ssl.cf2.rackcdn.com/css/intlTelInputv6.0.4.css"
 	
 	var _load_fancy_telephone_dom = function (opts) {
 
@@ -310,6 +310,7 @@ CornerWidgetUI._calculate_zIndex = function() {
 
 CornerWidgetUI._draw_ui = function (){
 
+	console.info(CornerWidgetUI._ui_config.auto_open)
 	//Define the widget components and begin display rendering
 	var _ui_widget_btn = document.createElement( "DIV" );
 	_ui_widget_btn.id = CornerWidgetUI.constants._uivar_widgetID;

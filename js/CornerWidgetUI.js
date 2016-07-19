@@ -265,7 +265,7 @@ CornerWidgetUI._load_libraries = function(opts){
 
 	// Load the utilsScript first, due the loading issues of the telutils
 	$lucep.add({
-		src: "/intlTelInput/js/telutils.js",
+		src: "https://8d69a4badb4c0e3cd487-efd95a2de0a33cb5b6fcd4ec94d1740c.ssl.cf2.rackcdn.com/intlTelInput/js/telutilsv6.0.4.js",
 		type: "text/javascript"
 	}, function() {
 		if (!CornerWidgetUI._f_load) {

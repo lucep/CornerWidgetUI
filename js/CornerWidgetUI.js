@@ -778,7 +778,7 @@ CornerWidgetUI._fail_submit = function (elem_id) {
 CornerWidgetUI._raise_lead = function (btn_ref){
 	//Capture the telephone number as a priority - even if we think it may be a bot
 	//If the utils have failed to load, the number must be extracted differently
-	var tel_no, lead_name;
+	var tel_no, lead_name, service_id, service_name;
 	if ( !window["intlTelInputUtils"] || CornerWidgetUI.jQuery("#"+CornerWidgetUI.constants._uivar_leadtelID)["intlTelInput"]("getNumber") === ""){
 		var country_sel = CornerWidgetUI.jQuery(".selected-flag")["attr"]("title");
 		var country_code = country_sel.substr(country_sel.indexOf(": +")+2, 5);
@@ -854,7 +854,8 @@ CornerWidgetUI._raise_lead = function (btn_ref){
 	}
 
 
-	lead_name = document["getElementById"](CornerWidgetUI.constants._uivar_leadserviceID)["value"];
+	lead_name = document["getElementById"](CornerWidgetUI.constants._uivar_leadnameID)["value"];
+	service_id = document["getElementById"](CornerWidgetUI.constants._uivar_leadserviceID)["value"]
 	CornerWidgetUI._ui_config.validation.count = 0; //reset the validation restriction as the criteria passed
 	
 	//Store data for future use
@@ -863,8 +864,8 @@ CornerWidgetUI._raise_lead = function (btn_ref){
 	
 	var lead_opts = {
 		"payload": {},
-		"service_id": document["getElementById"](CornerWidgetUI.constants._uivar_leadserviceID)["value"],
-		"service_name": CornerWidgetUI.jQuery("#gorillaFormService option:selected")["text"](),
+		"service_id": service_id,
+		"service_name": document["getElementById"](CornerWidgetUI.constants._uivar_leadserviceID)[service_id].text,
 		"phone_number": tel_no,
 		"name": lead_name,
 		"callback": function (progress){

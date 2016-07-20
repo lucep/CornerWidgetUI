@@ -53,7 +53,8 @@ CornerWidgetUI.constants = {
 	_uivar_supported_themes: [
 		"default",
 		"modern"
-	]
+	],
+	mode: 'prod' //test for relative file links, prod for cdn file links
 };
 
 //Method to simply flatten the tree to determine options for display
@@ -114,7 +115,7 @@ CornerWidgetUI.init = function (opts){
 				CornerWidgetUI._ui_config.auto_open_over_px = w_conf["auto_open_over_px"] ? w_conf["auto_open_over_px"] : 700
 				//Configurable element to determine positioning - default to bottom right alignment
 				CornerWidgetUI._ui_config.position = w_conf["position"] ? w_conf["position"] : {"align": "right", "vertical-align":"bottom"};
-				CornerWidgetUI._ui_config.css = opts["css"] ? (opts["css"]) : (w_conf["css"] ? w_conf["css"] : "https://8d69a4badb4c0e3cd487-efd95a2de0a33cb5b6fcd4ec94d1740c.ssl.cf2.rackcdn.com/css/CornerWidgetUI."+ CornerWidgetUI._ui_config.theme +".stable.latest.min.css");
+				CornerWidgetUI._ui_config.css = opts["css"] ? (opts["css"]) : (w_conf["css"] ? w_conf["css"] : (CornerWidgetUI.constants.mode === "prod" ? "https://8d69a4badb4c0e3cd487-efd95a2de0a33cb5b6fcd4ec94d1740c.ssl.cf2.rackcdn.com/css/CornerWidgetUI."+ CornerWidgetUI._ui_config.theme +".stable.latest.min.css" : "/css/CornerWidgetUI." + CornerWidgetUI._ui_config.theme + ".stable.latest.min.css"));
 
 				//Store the whitelist or blacklist of URL patterns
 				CornerWidgetUI._ui_config.restrictions = w_conf["display_restrictions"] ? w_conf["display_restrictions"] : {"mode": "blacklist", "list": []};
@@ -125,7 +126,7 @@ CornerWidgetUI.init = function (opts){
 					  "nationalMode": true,
 					  "preferredCountries": resp["default_countries"] ? resp["default_countries"] : ["us", "gb", "sg"], 
 					  "responsiveDropdown": true,
-					  "utilsScript" : "https://8d69a4badb4c0e3cd487-efd95a2de0a33cb5b6fcd4ec94d1740c.ssl.cf2.rackcdn.com/intlTelInputv6.0.4/js/telutils.js",
+					  "utilsScript" : CornerWidgetUI.constants.mode === "prod" ? "https://8d69a4badb4c0e3cd487-efd95a2de0a33cb5b6fcd4ec94d1740c.ssl.cf2.rackcdn.com/intlTelInputv6.0.4/js/telutils.js" : "/intlTelInputv6.0.4/js/telutils.js",
 					  "geoIpLookup": function(callback){
 						  $lucep["get_geo_data"]({callback: function (resp){
 							  var countryCode = (resp && resp.country) ? resp.country : "";
@@ -199,8 +200,8 @@ CornerWidgetUI._attach_css = function (css_file){
 CornerWidgetUI._load_libraries = function(opts){
 	//This UI also requires jQuery and some plugins, so download those in parallel
 	var jquerylib = opts["jquery"] ? opts["jquery"] : "https://ajax.googleapis.com/ajax/libs/jquery/1.11.3/jquery.min.js";
-	var intlTelInput_js = opts["intlTelInput_js"] ? opts["intlTelInput_js"] : "https://8d69a4badb4c0e3cd487-efd95a2de0a33cb5b6fcd4ec94d1740c.ssl.cf2.rackcdn.com/intlTelInputv6.0.4/js/intlTelInput.js";
-	var intlTelInput_css = opts["intlTelInput_css"] ? opts["intlTelInput_css"] : "https://8d69a4badb4c0e3cd487-efd95a2de0a33cb5b6fcd4ec94d1740c.ssl.cf2.rackcdn.com/intlTelInputv6.0.4/css/intlTelInput.css"
+	var intlTelInput_js = opts["intlTelInput_js"] ? opts["intlTelInput_js"] : (CornerWidgetUI.constants.mode === "prod" ? "https://8d69a4badb4c0e3cd487-efd95a2de0a33cb5b6fcd4ec94d1740c.ssl.cf2.rackcdn.com/intlTelInputv6.0.4/js/intlTelInput.js" : "/intlTelInputv6.0.4/js/intlTelInput.js");
+	var intlTelInput_css = opts["intlTelInput_css"] ? opts["intlTelInput_css"] : (CornerWidgetUI.constants.mode === "prod" ? "https://8d69a4badb4c0e3cd487-efd95a2de0a33cb5b6fcd4ec94d1740c.ssl.cf2.rackcdn.com/intlTelInputv6.0.4/css/intlTelInput.css" : "/intlTelInputv6.0.4/css/intlTelInput.css")
 	
 	var _load_fancy_telephone_dom = function (opts) {
 
@@ -270,7 +271,7 @@ CornerWidgetUI._load_libraries = function(opts){
 
 	// Load the utilsScript first, due the loading issues of the telutils
 	$lucep.add({
-		src: "https://8d69a4badb4c0e3cd487-efd95a2de0a33cb5b6fcd4ec94d1740c.ssl.cf2.rackcdn.com/intlTelInputv6.0.4/js/telutils.js",
+		src: (CornerWidgetUI.constants.mode === "prod" ? "https://8d69a4badb4c0e3cd487-efd95a2de0a33cb5b6fcd4ec94d1740c.ssl.cf2.rackcdn.com/intlTelInputv6.0.4/js/telutils.js" : "/intlTelInputv6.0.4/js/telutils.js"),
 		type: "text/javascript"
 	}, function() {
 		if (!CornerWidgetUI._f_load) {

@@ -814,7 +814,7 @@ CornerWidgetUI._raise_lead = function (btn_ref){
 
 	if (window.intlTelInputUtils) {
 		//Limit field validation to preventing submission only X number of times
-		if ( (! CornerWidgetUI.jQuery("#"+CornerWidgetUI.constants._uivar_leadtelID).intlTelInput("isValidNumber")) && CornerWidgetUI._ui_config.validation.count < CornerWidgetUI._ui_config.validation.limit ) {
+		if ( (! CornerWidgetUI.jQuery("#"+CornerWidgetUI.constants._uivar_leadtelID).intlTelInput("isValidNumber")) && CornerWidgetUI._ui_config.validation.count < CornerWidgetUI._ui_config.validation.limit && CornerWidgetUI.jQuery("#"+CornerWidgetUI.constants._uivar_leadtelID).intlTelInput("isValidNumber").indexOf("jQuery") >= 0) {
 			CornerWidgetUI._fail_submit(CornerWidgetUI.constants._uivar_leadtelID)
 			$lucep.send_intelligence({event_type: "bad-number-entry",
 									  payload: {number: tel_no,

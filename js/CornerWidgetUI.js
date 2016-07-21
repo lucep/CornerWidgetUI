@@ -7,7 +7,7 @@
  *  Copyright (C) 2015 - 2016 Lucep Pte Ltd 
  *  Contributors: 
  *    - Kaiesh Vohra (@kaiesh - https://github.com/kaiesh)
- *    - Sathyanaran Ravi (https://github.com/Atilla14)
+ *    - Sathyanarayan Ravi (https://github.com/Atilla14)
  *
  *  This program is free software: you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
@@ -202,7 +202,7 @@ CornerWidgetUI._attach_css = function (css_file){
 CornerWidgetUI._load_libraries = function(opts){
 	//This UI also requires jQuery and some plugins, so download those in parallel
 	var jquerylib = opts["jquery"] ? opts["jquery"] : "https://ajax.googleapis.com/ajax/libs/jquery/1.11.3/jquery.min.js";
-	var intlTelInput_js = opts["intlTelInput_js"] ? opts["intlTelInput_js"] : CornerWidgetUI._ui_config._cdn + "/intlTelInputv6.0.4/js/intlTelInput.js";
+	var intlTelInput_js = opts["intlTelInput_js"] ? opts["intlTelInput_js"] : CornerWidgetUI._ui_config._cdn + "/intlTelInputv6.0.4/js/intlTelInput.min.js";
 	var intlTelInput_css = opts["intlTelInput_css"] ? opts["intlTelInput_css"] : CornerWidgetUI._ui_config._cdn + "/intlTelInputv6.0.4/css/intlTelInput.css";
 	
 	var _load_fancy_telephone_dom = function (opts) {

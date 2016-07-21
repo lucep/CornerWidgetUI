@@ -4,9 +4,10 @@
  *  for websites (free for commercial or non-commercial use)
  *  https://github.com/lucep/CornerWidgetUI
  * 
- *  Copyright (C) 2015 Lucep Pte Ltd 
+ *  Copyright (C) 2015 - 2016 Lucep Pte Ltd 
  *  Contributors: 
  *    - Kaiesh Vohra (@kaiesh - https://github.com/kaiesh)
+ *    - Sathyanaran Ravi (https://github.com/Atilla14)
  *
  *  This program is free software: you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by

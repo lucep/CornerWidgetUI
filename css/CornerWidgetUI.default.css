@@ -158,13 +158,14 @@
 	z-index: 1001;
 	transition: all 1s;
 	overflow: hidden;
-	background-image: url('https://8d69a4badb4c0e3cd487-efd95a2de0a33cb5b6fcd4ec94d1740c.ssl.cf2.rackcdn.com/img/white-phone.png');
+	background-image: url('https://8d69a4badb4c0e3cd487-efd95a2de0a33cb5b6fcd4ec94d1740c.ssl.cf2.rackcdn.com/img/default-phone.png');
     background-repeat: no-repeat;
     background-position: center;
 	background-size: 30px;
 	transform: rotate(120deg);
 	-ms-transform: rotate(120deg);
 	-webkit-transform: rotate(120deg);
+	cursor: pointer;
 }
 #gorillaX{
 	position: fixed;
@@ -180,6 +181,7 @@
 	text-align: center;
 	border-radius: 5px;
 	font-size: 1px;
+	cursor: pointer;
 }
 
 #gorillaWidget.a-gorilla-loading, #gorillaX.a-gorilla-loading{
@@ -285,13 +287,16 @@
 	width: 180px;
 	border-radius: 5px;
 	border: 1px solid #4067CB;
-	padding: 5px 5px 5px 48px;
+	padding: 5px 5px 5px 48px !important;
 	transition: box-shadow 1s ease;
 }
-#gorillaForm input#gorillaFormTel.a-gorilla-error{
+
+
+#gorillaForm input.a-gorilla-error, #gorillaForm select.a-gorilla-error{
 	border: 2px solid #FF0000;
     box-shadow: 0px 0px 3px 3px #FF0000;
 }
+
 div.intl-tel-input {
 	margin: 5px 0px;
 }
@@ -306,9 +311,10 @@ ul.country-list {
 	border: 2px solid #4067CB;
 	border-radius: 5px;
 	width: 150px;
-	height: 30px;
+	min-height: 30px;
 	margin: 10px 15px 0px 15px;
 	text-align: center;
+	cursor: pointer;
 }
 
 #gorillaForm #gorillaLabel {
@@ -344,7 +350,7 @@ ul.country-list {
     bottom: 20px;
     right: 40px;
     height: auto;
-
+    cursor: pointer;
     border: 1px solid #4067CB;
     z-index: 998;
     transition: all 1s;

@@ -108,9 +108,12 @@ CornerWidgetUI.init = function (opts){
 				//configurable element to prevent loss of leads due to incorrect validation
 				CornerWidgetUI._ui_config.validation = {limit: w_conf["validation_limit"] ? w_conf["validation_limit"] : 1,
 														count: 0};
-				CornerWidgetUI._ui_config.auto_open = {};
-				CornerWidgetUI._ui_config.auto_open.min = w_conf["auto_open"].min ? w_conf["auto_open"].min : 1000;
-				CornerWidgetUI._ui_config.auto_open.max = w_conf["auto_open"].max ? w_conf["auto_open"].max : 13000;
+				
+				if (w_conf["auto_open"] && w_conf["auto_open"]["min"] && w_conf["auto_open"]["max"])
+					CornerWidgetUI._ui_config.auto_open = {min: parseInt(w_conf["auto_open"]["min"]),
+														   max: parseInt(w_conf["auto_open"]["max"])};
+				else
+					CornerWidgetUI._ui_config.auto_open = {min: 8000, max: 13000};
 				//select random time between min and max
 				CornerWidgetUI._ui_config.auto_open_time = Math.floor(Math.random() * (CornerWidgetUI._ui_config.auto_open.max - CornerWidgetUI._ui_config.auto_open.min)) + CornerWidgetUI._ui_config.auto_open.min;
 				CornerWidgetUI._ui_config.auto_open_over_px = w_conf["auto_open_over_px"] ? w_conf["auto_open_over_px"] : 700

@@ -314,9 +314,9 @@ CornerWidgetUI._calculate_zIndex = function() {
 	var nodes = document.getElementsByTagName("*");
 	var maxZ = 1;
 	for (var i = 0; i < nodes.length; i++) {
-	    maxZ = maxZ > (getComputedStyle(nodes[i]).zIndex !== "auto" ? parseInt(getComputedStyle(nodes[i]).zIndex) : 1) ? maxZ : (getComputedStyle(nodes[i]).zIndex !== "auto" ? parseInt(getComputedStyle(nodes[i]).zIndex) : 1);
+	    maxZ = maxZ > (getComputedStyle(nodes[i]).zIndex !== "auto" ? parseInt(getComputedStyle(nodes[i]).zIndex) : 1) ? maxZ : (getComputedStyle(nodes[i]).zIndex !== "auto" ? parseInt(getComputedStyle(nodes[i]).zIndex) : 1)
 	}
-	CornerWidgetUI._ui_config.zIndex = maxZ + 1000;
+	CornerWidgetUI._ui_config.zIndex = maxZ + 1000 > 31760 ? 31760 : maxZ + 1000;
 }
 
 CornerWidgetUI._draw_ui = function (){
@@ -861,7 +861,8 @@ CornerWidgetUI._raise_lead = function (btn_ref){
 
 
 	lead_name = document["getElementById"](CornerWidgetUI.constants._uivar_leadnameID)["value"];
-	service_id = document["getElementById"](CornerWidgetUI.constants._uivar_leadserviceID)["value"]
+	service_id = document["getElementById"](CornerWidgetUI.constants._uivar_leadserviceID)["value"];
+	service_index = document["getElementById"](CornerWidgetUI.constants._uivar_leadserviceID).selectedIndex;
 	CornerWidgetUI._ui_config.validation.count = 0; //reset the validation restriction as the criteria passed
 	
 	//Store data for future use

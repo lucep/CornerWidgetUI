@@ -862,6 +862,7 @@ CornerWidgetUI._raise_lead = function (btn_ref){
 
 	lead_name = document["getElementById"](CornerWidgetUI.constants._uivar_leadnameID)["value"];
 	service_id = document["getElementById"](CornerWidgetUI.constants._uivar_leadserviceID)["value"]
+	service_index = document["getElementById"](CornerWidgetUI.constants._uivar_leadserviceID.selectedIndex)
 	CornerWidgetUI._ui_config.validation.count = 0; //reset the validation restriction as the criteria passed
 	
 	//Store data for future use
@@ -871,7 +872,7 @@ CornerWidgetUI._raise_lead = function (btn_ref){
 	var lead_opts = {
 		"payload": {},
 		"service_id": service_id,
-		"service_name": document["getElementById"](CornerWidgetUI.constants._uivar_leadserviceID)[service_id].text,
+		"service_name": document["getElementById"](CornerWidgetUI.constants._uivar_leadserviceID)[service_index].text,
 		"phone_number": tel_no,
 		"name": lead_name,
 		"callback": function (progress){

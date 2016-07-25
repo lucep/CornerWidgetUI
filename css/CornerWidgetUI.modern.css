@@ -277,7 +277,6 @@
 #gorillaForm input#gorillaFormName, #gorillaForm select#gorillaFormService {
 	background: none;
 	border: 1px solid #4067CB;
-	border-radius: 5px;
 	padding: 5px;
 	width: 180px;
 	margin-top: 5px;
@@ -285,7 +284,6 @@
 
 #gorillaForm input#gorillaFormTel {
 	width: 180px;
-	border-radius: 5px;
 	border: 1px solid #4067CB;
 	padding: 5px 5px 5px 48px !important;
 	transition: box-shadow 1s ease;

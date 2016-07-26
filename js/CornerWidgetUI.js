@@ -784,7 +784,7 @@ CornerWidgetUI._fail_submit = function (elem_id) {
 CornerWidgetUI._raise_lead = function (btn_ref){
 	//Capture the telephone number as a priority - even if we think it may be a bot
 	//If the utils have failed to load, the number must be extracted differently
-	var tel_no, lead_name, service_id, service_name;
+	var tel_no, lead_name, service_id, service_name, service_index;
 	if ( !window["intlTelInputUtils"] || CornerWidgetUI.jQuery("#"+CornerWidgetUI.constants._uivar_leadtelID)["intlTelInput"]("getNumber") === ""){
 		var country_sel = CornerWidgetUI.jQuery(".selected-flag")["attr"]("title");
 		var country_code = country_sel.substr(country_sel.indexOf(": +")+2, 5);

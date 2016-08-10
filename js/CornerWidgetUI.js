@@ -218,8 +218,6 @@ CornerWidgetUI._load_libraries = function(opts){
 			CornerWidgetUI._f_set = true;
 			CornerWidgetUI._bind_events(opts);
 			CornerWidgetUI.control( { state: "new" } );
-
-
 	};
 
 	var _load_fancy_telephone_css = function(opts) {
@@ -249,7 +247,7 @@ CornerWidgetUI._load_libraries = function(opts){
 
 		_load_fancy_telephone_css(opts)
 		//add jQuery if it does not exist or has unsupported version
-		if (!window.jQuery || (parseInt(window.jQuery.fn.jquery.split('.')[0]) < 1 || (parseInt(window.jQuery.fn.jquery.split('.')[0]) === 1 && parseInt(window.jQuery.fn.jquery.split('.')[1]) < 5) || parseInt(window.jQuery.fn.jquery.split('.')[0]) >= 3)) {
+		if (!window.jQuery || (parseInt(window.jQuery.fn.jquery.split('.')[0]) < 1 || (parseInt(window.jQuery.fn.jquery.split('.')[0]) === 1 && parseInt(window.jQuery.fn.jquery.split('.')[1]) < 8) || parseInt(window.jQuery.fn.jquery.split('.')[0]) >= 3)) {
 			if (window.jQuery) CornerWidgetUI._f_jquery = true;
 			else CornerWidgetUI._f_jquery = false;
 			$lucep.add( { src:  jquerylib, type: ""},

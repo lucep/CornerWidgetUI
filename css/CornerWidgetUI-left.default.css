@@ -1,6 +1,6 @@
 @import url(https://fonts.googleapis.com/css?family=Cabin:400,700);
 
-#gorillaPulse, #gorillaPulse.emit, #gorillaWidget, #gorillaBox, #gorillaForm, #gorillaForm input, #gorillaForm select, #gorillaForm button, #gorillaLabel, #gorillaBar, #gorillaBarTxt {
+#gorillaPulse, #gorillaPulse.emit, #gorillaWidget, #gorillaBox, #gorillaX, #gorillaForm, #gorillaForm input, #gorillaForm select, #gorillaForm button, #gorillaLabel, #gorillaBar, #gorillaBarTxt {
 	background-attachment: scroll;
     background-color: transparent;
     background-image: none;
@@ -57,6 +57,13 @@
     text-indent: 0px;
     text-shadow: none;
 	box-sizing: border-box;
+}
+
+#gorillaBT {
+	display: inline-block;
+    overflow: hidden;
+    width: 1px;
+    height: 1px;
 }
 
 #gorillaPulse{
@@ -280,4 +287,37 @@ ul.country-list {
 #gorillaBar.a-gorilla-open{
 	width: 0px !important;
 	padding: 10px 0px;
+}
+
+#gorillaX{
+	position: fixed;
+	bottom: 40px;
+	left: 40px;
+	width: 0px;
+	height: 0px;
+	background: #FFF;
+	border: 1px solid #4067CB;
+	overflow: hidden;
+	z-index: 1000;
+	transition: all 1s;
+	text-align: center;
+	border-radius: 5px;
+	font-size: 1px;
+	cursor: pointer;
+}
+
+#gorillaWidget.a-gorilla-loading, #gorillaX.a-gorilla-loading{
+	width: 1px;
+	height: 1px;
+	bottom: 39px;
+	left: 39px;
+	background-size: 1px;
+}
+
+#gorillaX.a-gorilla-clicked{
+	width: 40px;
+	height: 40px;
+	line-height: 40px;
+	border: 1px solid #4067CB;
+	font-size: 22px;
 }
